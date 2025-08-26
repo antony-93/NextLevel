@@ -1,20 +1,19 @@
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
-import type { TServiceResult } from "../types/TServiceResult";
 
 export interface IRepositoryProvider<T> {
-    get(queryParams: TQueryParams<T>): Promise<TServiceResult<T[]>>;
+    get(queryParams: TQueryParams<T>): Promise<T[]>;
 
-    getById(id: string): Promise<TServiceResult<T | null>>;
+    getById(id: string): Promise<T | null>;
     
-    getCount(queryParams: TQueryParams<T>): Promise<TServiceResult<number>>;
+    getCount(queryParams: TQueryParams<T>): Promise<number>;
     
-    create(data: Omit<T, 'id'>): Promise<TServiceResult<T>>;
+    create(data: Omit<T, 'id'>): Promise<T>;
     
-    update(id: string, data: Partial<T>): Promise<TServiceResult<Partial<T>>>;
+    update(id: string, data: Partial<T>): Promise<Partial<T>>;
     
-    updateMany(updates: Array<{id: string, data: Omit<Partial<T>, 'id'>}>): Promise<TServiceResult<Partial<T>[]>>;
+    updateMany(updates: Array<{id: string, data: Omit<Partial<T>, 'id'>}>): Promise<Partial<T>[]>;
     
-    delete(id: string): Promise<TServiceResult<void>>;
+    delete(id: string): Promise<void>;
     
-    deleteMany(ids: string[]): Promise<TServiceResult<void>>;
+    deleteMany(ids: string[]): Promise<void>;
 }

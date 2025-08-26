@@ -5,6 +5,7 @@ import { useSessionContext } from "../../context/UseEditSessionContext";
 import { cn } from "@/shared/utils/utils";
 import { EnumStatusSession } from "../../domain/enums/EnumStatusSession";
 import { useSessionMutations } from "../../hooks/UseSession";
+import { useNavigate } from "react-router-dom";
 
 type TabDataSessionProps = {
     className?: string;
@@ -12,6 +13,7 @@ type TabDataSessionProps = {
 
 export default function TabDataSession({ className }: TabDataSessionProps) {
     const { session } = useSessionContext();
+    const navigate = useNavigate();
 
     const {
         updateSession,
@@ -26,6 +28,8 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
             },
             refetch: true
         });
+
+        navigate("/sessions/agenda");
     }
 
     return (
