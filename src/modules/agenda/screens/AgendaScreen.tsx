@@ -1,6 +1,6 @@
 import { AgendaCalendar } from "@/shared/components/agenda"
 import { Button } from "@/shared/components/ui/button"
-import { Loader2, PlusIcon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 import { useCallback, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { useGroupedSessionByDate } from "../hooks/UseGroupedSession";

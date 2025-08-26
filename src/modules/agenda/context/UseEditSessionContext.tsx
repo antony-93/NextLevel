@@ -2,21 +2,16 @@ import type Session from "../domain/entities/Session";
 import { createContext, type FC, useContext, useState } from "react";
 
 type SessionContextData = {
-    session: Session | null;
-    setSession: (session: Session) => void;
+    session: Session;
 }
 
 const SessionContext = createContext<SessionContextData>({} as SessionContextData);
 
-export const SessionContextProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [session, setSession] = useState<Session | null>(null);
-
-    const handleSetSession = (session: Session) => {
-        setSession(session);
-    };
+export const SessionContextProvider: FC<{ children: React.ReactNode, session: Session }> = ({ children, session }) => {
+    const [sessionContext] = useState<Session>(session);
 
     return (
-        <SessionContext.Provider value={{ session, setSession: handleSetSession }}>
+        <SessionContext.Provider value={{ session: sessionContext }}>
             {children}
         </SessionContext.Provider>
     );

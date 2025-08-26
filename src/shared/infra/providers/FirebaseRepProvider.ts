@@ -23,6 +23,7 @@ import {
     type DocumentData,
     Timestamp
 } from "firebase/firestore";
+import type { TServiceResult } from "@/shared/types/TServiceResult";
 
 
 export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
@@ -98,7 +99,7 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
         return cleanData as Partial<T>;
     }
 
-    async get(queryParams: TQueryParams<T>): Promise<T[]> {
+    async get(queryParams: TQueryParams<T>): Promise<TServiceResult<T[]>> {
         try {
             const {
                 filters,
@@ -112,40 +113,63 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
                 ...doc.data()
             }));
 
-            return data.map(this.formatDocumentData) as T[];
+            const total = await this.getCount(queryParams);
+
+            return {
+                data: data.map(this.formatDocumentData) as T[],
+                total: total.data
+            };
         } catch (error) {
-            console.log(error);
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async getById(id: string): Promise<T> {
+    async getById(id: string): Promise<TServiceResult<T | null>> {
         try {
             const docRef = doc(db, this.collectionName, id),
                 docSnap = await getDoc(docRef);
 
-            return this.formatDocumentData({
-                id: docSnap.id,
-                ...docSnap.data()
-            }) as T;
+            return {
+                data: this.formatDocumentData({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }) as T,
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async getCount(queryParams: TQueryParams<T>): Promise<number> {
+    async getCount(queryParams: TQueryParams<T>): Promise<TServiceResult<number>> {
         try {
             const querySnapshot = await getAggregateFromServer(this.getQuery(queryParams.filters, queryParams.sort), {
                 count: count()
             });
 
-            return querySnapshot.data().count || 0;
+            return {
+                data: querySnapshot.data().count || 0
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async create(data: Omit<T, 'id'>): Promise<T> {
+    async create(data: Omit<T, 'id'>): Promise<TServiceResult<T>> {
         try {
             const cleanData = this.cleanData(data);
 
@@ -156,13 +180,20 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
 
             const docRef = await addDoc(this.getCollection(), docData);
 
-            return { id: docRef.id, ...data } as T;
+            return {
+                data: { id: docRef.id, ...data } as T
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async update(id: string, data: Partial<T>): Promise<Partial<T>> {
+    async update(id: string, data: Partial<T>): Promise<TServiceResult<Partial<T>>> {
         try {
             const docRef = doc(db, this.collectionName, id);
 
@@ -171,13 +202,20 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
                 updatedAt: new Date()
             });
 
-            return { id, ...data } as unknown as Partial<T>;
+            return {
+                data: { id, ...data } as unknown as Partial<T>
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async updateMany(data: Array<{ id: string, data: Omit<Partial<T>, 'id'> }>): Promise<Partial<T>[]> {
+    async updateMany(data: Array<{ id: string, data: Omit<Partial<T>, 'id'> }>): Promise<TServiceResult<Partial<T>[]>> {
         try {
             const batches = chunkArray(data, 500);
 
@@ -192,22 +230,38 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
                 await batch.commit();
             }
 
-            return data.map(item => ({ id: item.id, ...item.data })) as unknown as Partial<T>[];
+            return {
+                data: data.map(item => ({ id: item.id, ...item.data })) as unknown as Partial<T>[]
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: string): Promise<TServiceResult<void>> {
         try {
             const docRef = doc(db, this.collectionName, id);
             await deleteDoc(docRef);
+
+            return {
+                success: true
+            };
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 
-    async deleteMany(ids: string[]): Promise<void> {
+    async deleteMany(ids: string[]): Promise<TServiceResult<void>> {
         try {
             const batches = chunkArray(ids, 500);
 
@@ -221,8 +275,18 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
 
                 await batch.commit();
             }
+
+            return {
+                success: true
+            }
+
         } catch (error) {
-            throw ErrorFactory.create(error);
+            const errorResult = ErrorFactory.create(error);
+
+            return {
+                success: false,
+                message: errorResult.message
+            };
         }
     }
 }
