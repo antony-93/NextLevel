@@ -54,6 +54,9 @@ export default function Select({
               placeholder={searchPlaceholder} 
               onChange={(e) => onSearch(e.target.value)} 
               className="mb-2"  
+              onKeyDown={(e) => {
+                e.stopPropagation();
+              }}
             />
           )}
           {isLoadingList ? (

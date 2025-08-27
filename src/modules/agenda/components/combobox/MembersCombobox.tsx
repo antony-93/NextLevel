@@ -2,6 +2,8 @@ import Select from "@/shared/components/select";
 import { useInfiniteMembers } from "../../hooks/UseMember";
 import { SelectItem } from "@/shared/components/ui/select";
 import { useEffect, useRef } from "react";
+import { useDebouncedCallback } from "@/shared/hooks/UseDebounce";
+import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 
 type MembersComboboxProps = Omit<
     React.ComponentProps<typeof Select>,
@@ -18,6 +20,8 @@ export default function MembersCombobox({
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
+        filters,
+        setFilters,
     } = useInfiniteMembers();
 
     const loaderRef = useRef<HTMLDivElement>(null);
@@ -42,13 +46,32 @@ export default function MembersCombobox({
         };
     }, [fetchNextPage, hasNextPage]);
 
+    const handleSearch = useDebouncedCallback((name: string) => {
+        const formatedFilters = filters.filter(filter => filter.field !== 'name');
+
+        if (!name) {
+            return setFilters(formatedFilters);
+        }
+
+        setFilters([
+            ...formatedFilters,
+            {
+                field: 'name',
+                value: name,
+                operator: EnumFilterOperator.GreaterThanOrEquals
+            },
+            {
+                field: 'name',
+                value: `${name}\uf8ff`,
+                operator: EnumFilterOperator.LessThanOrEquals
+            }
+        ]);
+    });
     return (
         <Select
             {...props}
             searchPlaceholder="Pesquisar membros"
-            onSearch={(value) => {
-                console.log(value);
-            }}
+            onSearch={handleSearch}
             isLoadingList={isLoading}
             isLoadingNextPage={isFetchingNextPage}
         >
@@ -63,7 +86,8 @@ export default function MembersCombobox({
                     Nenhum membro encontrado
                 </SelectItem>
             )}
-            <div ref={loaderRef}></div>
+
+            <div ref={loaderRef} className="h-2" />
         </Select>
     )
 }
