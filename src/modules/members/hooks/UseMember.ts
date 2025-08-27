@@ -1,41 +1,61 @@
-import type { TFilter, TQueryParams, TSort } from "@/shared/types/QueryParamsTypes";
+import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import type Member from "../domain/entities/Member";
-import { useState } from "react";
 import MemberRepository from "../repository/MemberRepository";
-import { useQuery, useQueryById } from "@/shared/hooks/UseQuery";
+import { useQueryById, useQueryInfinite } from "@/shared/hooks/UseQuery";
 import { useMutation } from "@/shared/hooks/UseMutation";
+import { useQueryParams } from "@/shared/hooks/UseQueryParams";
+import { useMemo } from "react";
 
-export function useMembers(params?: TQueryParams<Member>) {
-    const [
-        filters, 
-        setFilters
-    ] = useState<TFilter<Member>[]>(params?.filters ?? []);
-
-    const [
-        sort, 
-        setSort
-    ] = useState<TSort<Member>[]>(params?.sort ?? [{
-        field: 'name',
-        direction: 'asc'
-    }]);
-    
+export function useInfiniteMembers(params?: TQueryParams<Member>) {
     const {
-        data: members,
+        filters,
+        setFilters,
+        sort,
+        setSort,
+        pageSize,
+        setPageSize,
+    } = useQueryParams<Member>(params, {
+        pageSize: 5,
+        sort: [{
+            field: 'name',
+            direction: 'asc'
+        }]
+    });
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
         isLoading,
         isError,
-        error
-    } = useQuery({
+        error,
+        isFetchingNextPage
+    } = useQueryInfinite({
         repository: new MemberRepository(),
         queryKey: 'members',
-        filters,
-        sort
+        queryParams: {
+            filters,
+            sort,
+            pageSize
+        }
     });
+
+    const members = useMemo(() => {
+        if (!data || !('pages' in data)) return [];
+        return data.pages.flatMap(page => page.data);
+    }, [data]);
 
     return {
         members,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         filters,
         setFilters,
         setSort,
+        sort,
+        pageSize,
+        setPageSize,
         isLoading,
         isError,
         error
@@ -48,7 +68,7 @@ export function useMember(id: string) {
         isLoading,
         isError,
         error
-    } = useQueryById({
+    } = useQueryById<Member>({
         repository: new MemberRepository(),
         queryKey: 'members',
         id
@@ -60,11 +80,11 @@ export function useMember(id: string) {
         isError,
         error
     };
-}   
+}
 
 export function useMemberMutations() {
-    const { 
-        createMutation, 
+    const {
+        createMutation,
         updateMutation,
         updateManyMutation,
         deleteMutation,

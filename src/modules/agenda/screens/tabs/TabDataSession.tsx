@@ -34,31 +34,60 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
 
     return (
         <div className={cn("flex flex-col justify-between py-4", className)}>
-            <div className="flex flex-col mb-4 flex-1">
-                <Card className="mb-2">
-                    <CardContent>
-                        <div className="flex flex-row gap-2">
-                            <Calendar size={20} />
-                            <p className="text-sm font-medium">Data: {session.sessionDate.toLocaleDateString()}</p>
-                        </div>
+            <div className="flex flex-col gap-2 flex-1">
+                <Card
+                    className={cn(
+                        "bg-yellow-500 py-4",
+                        session.status === EnumStatusSession.COMPLETED && "bg-green-500"
+                    )}
+                >
+                    <CardContent
+                        className="flex items-center justify-center"
+                    >
+                        <p className="text-lg font-medium text-white">
+                            {session.status}
+                        </p>
                     </CardContent>
                 </Card>
 
-                <Card className="mb-4">
-                    <CardContent>
-                        <div className="flex flex-row gap-2">
-                            <Clock size={20} />
-                            <p className="text-sm font-medium">Horário: {session.sessionHour}</p>
-                        </div>
+                <Card>
+                    <CardContent className="flex flex-row gap-2">
+                        <Calendar size={20} />
+                        <p className="text-sm font-medium overflow-auto break-words">
+                            Data: {session.sessionDate.toLocaleDateString()}
+                        </p>
                     </CardContent>
                 </Card>
 
-                <p className="font-medium">Descrição: {session.description}</p>
+                <Card>
+                    <CardContent className="flex flex-row gap-2">
+                        <Clock size={20} />
+                        <p className="text-sm font-medium overflow-auto break-words">
+                            Horário: {session.sessionHour}
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardContent className="flex flex-row gap-2">
+                        <p className="font-medium overflow-auto break-words">
+                            {session.description}
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
 
-            <Button size="lg" className="w-full" onClick={handleFinishSession} disabled={updateSessionLoading}>
+            <Button
+                size="lg"
+                className="w-full"
+                onClick={handleFinishSession}
+                disabled={updateSessionLoading}
+                hidden={session.status === EnumStatusSession.COMPLETED}
+            >
                 {updateSessionLoading && <Loader2 />}
-                <p className="text-base font-medium">Finalizar aula</p>
+                <p className="text-base font-medium">
+                    Finalizar aula
+                </p>
             </Button>
         </div>
     )

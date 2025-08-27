@@ -26,11 +26,16 @@ export default function SessionEditScreen() {
             refetch: true
         });
         
-        navigate("/sessions");
+        navigate("/sessions/agenda");
     }, [updateSession, navigate, id]);
 
+    const {
+        session,
+        isLoading
+    } = useSession(id!);
+
     return (
-        <div className="min-h-screen p-4">
+        <div className="flex-1 flex flex-col p-4">
             <div className="flex flex-row justify-between items-center mb-8">
                 <p className="text-3xl font-bold">
                     Editar aula
@@ -39,45 +44,22 @@ export default function SessionEditScreen() {
                 <Button
                     variant="outline"
                     className="aspect-square"
-                    onClick={() => navigate("/sessions")}
+                    onClick={() => navigate("/sessions/agenda")}
                 >
                     <X className="opacity-60" size={16} aria-hidden="true" />
                 </Button>
             </div>
 
-            <SessionFormLoader 
-                id={id!} 
-                onSubmit={onSubmit} 
-                onClickCancel={() => navigate("/sessions")} 
-                updateSessionLoading={updateSessionLoading} 
-            />
+            {isLoading ? (
+                <div>Carregando...</div>
+            ) : (
+                <SessionForm
+                    onSubmit={onSubmit}
+                    onClickCancel={() => navigate("/sessions/agenda")}
+                    isSaving={updateSessionLoading}
+                    session={session}
+                />
+            )}
         </div>
-    );
-}
-
-type SessionFormLoaderProps = {
-    id: string;
-    onSubmit: (session: Session) => void;
-    onClickCancel: () => void;
-    updateSessionLoading: boolean;
-}
-
-function SessionFormLoader({ id, onSubmit, onClickCancel, updateSessionLoading }: SessionFormLoaderProps) {
-    const {
-        session,
-        isLoading
-    } = useSession(id);
-
-    if (isLoading) {
-        return <div>Carregando...</div>;
-    }
-
-    return (
-        <SessionForm
-            onSubmit={onSubmit}
-            onClickCancel={onClickCancel}
-            isSaving={updateSessionLoading}
-            session={session}
-        />
     );
 }

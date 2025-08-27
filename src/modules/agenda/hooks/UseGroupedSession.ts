@@ -1,15 +1,21 @@
-import { useSessions } from "./UseSession";
+import { useInfiniteSessions } from "./UseSession";
 import { useMemo } from "react";
 import type { TGroupedSession, TSessionGroupedSession } from "../types/GroupedSessionTypes";
+import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
+import type Session from "../domain/entities/Session";
 
-export function useGroupedSessionByDate() {
+export function useGroupedSessionByDate(queryParams: TQueryParams<Session>) {
     const { 
         sessions, 
         filters,
         setFilters,
         isLoading, 
-        isError 
-    } = useSessions();
+        isError,
+        isFetchingNextPage,
+        fetchNextPage,
+        hasNextPage,
+        pageSize
+    } = useInfiniteSessions(queryParams);
 
     const groupedSessions = useMemo<TGroupedSession[]>(() => {
         const groups: TGroupedSession[] = [];
@@ -46,9 +52,13 @@ export function useGroupedSessionByDate() {
 
     return {
         groupedSessions,
+        isFetchingNextPage,
         isLoading,
         isError,
         filters,
-        setFilters
+        setFilters,
+        fetchNextPage,
+        hasNextPage,
+        pageSize
     };
 }

@@ -25,46 +25,46 @@ export default function MemberCard({ member, onClickEdit, className }: MemberCar
 
     return (
         <Card key={member.id} className={className}>
-            <CardContent>
-                <div className="flex flex-col gap-3">
-                    <div className="flex flex-col">
-                        <div className="flex flex-row justify-between items-center">
-                            <p className="text-xl font-semibold text-ellipsis overflow-hidden whitespace-nowrap">
-                                {member.name}
-                            </p>
-
-                            <Button variant="ghost" size="icon" onClick={handleEdit}>
-                                <Edit size={24} />
-                            </Button>
-                        </div>
-
-                        <Badge variant="outline" className="rounded">
-                            <p className="text-sm">
-                                {member.plan}
-                            </p>
-                        </Badge>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <Calendar size={24} className="opacity-60" />
-                        <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">22/01/2025</p>
-                    </div>
-
-                    <div className="flex flex-row gap-1 items-center">
-                        <MapPin size={24} className="opacity-60" />
-
-                        <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
-                            {formattedAddress || 'Endereço não informado'}
+            <CardContent className="gap-3 flex-col flex">
+                <div className="flex flex-col">
+                    <div className="flex flex-row justify-between">
+                        <p className="text-xl flex-1 font-semibold text-ellipsis overflow-hidden py-1">
+                            {member.name}
                         </p>
+
+                        <Button variant="ghost" size="icon" onClick={handleEdit}>
+                            <Edit size={24} />
+                        </Button>
                     </div>
 
-                    <div className="flex flex-row gap-1 items-center">
-                        <CreditCard size={24} className="opacity-60" />
-
-                        <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
-                            {member.cpf}
+                    <Badge variant="outline" className="rounded">
+                        <p className="text-sm">
+                            {member.plan}
                         </p>
-                    </div>
+                    </Badge>
+                </div>
+
+                <div className="flex flex-row gap-1 items-center">
+                    <Calendar size={24} className="opacity-60" />
+                    <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                        {member.birthDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </p>
+                </div>
+
+                <div className="flex flex-row gap-1 items-center">
+                    <MapPin size={24} className="opacity-60" />
+
+                    <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                        {formattedAddress || 'Endereço não informado'}
+                    </p>
+                </div>
+
+                <div className="flex flex-row gap-1 items-center">
+                    <CreditCard size={24} className="opacity-60" />
+
+                    <p className="text-sm flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                        {member.cpf}
+                    </p>
                 </div>
             </CardContent>
         </Card>

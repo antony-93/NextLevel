@@ -1,4 +1,3 @@
-import AppLayout from "@/shared/layout/AppLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 import MemberCreateScreen from "../screens/MemberCreateScreen";
 import MemberEditScreen from "../screens/MemberEditScreen";

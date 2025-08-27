@@ -1,39 +1,37 @@
 import { Button } from "@/shared/components/button"
 import { Input } from "@/shared/components/input"
 import { PlusIcon } from "lucide-react"
-import { useMembers } from "../hooks/UseMember"
+import { useInfiniteMembers } from "../hooks/UseMember"
 import { useNavigate } from "react-router-dom";
 import MemberCard from "../components/card/MemberCard";
-import type Member from "../domain/entities/Member";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 import { useDebouncedCallback } from "@/shared/hooks/UseDebounce";
+import { useEffect, useRef } from "react";
 
 export default function MembersListScreen() {
     const {
         members,
-        isLoading,
+        fetchNextPage,
         setFilters,
-        filters
-    } = useMembers()
+        filters,
+        isLoading,
+        pageSize,
+        hasNextPage,
+        isFetchingNextPage
+    } = useInfiniteMembers()
 
     const navigate = useNavigate();
 
-    const handleNovo = () => {
-        navigate("/members/create");
-    }
-
-    const handleEdit = (member: Member) => {
-        navigate(`/members/edit/${member.id}`);
-    }
-
     const handleSearch = useDebouncedCallback((name: string) => {
+        const formatedFilters = filters.filter(filter => filter.field !== 'name');
+
         if (!name) {
-            return setFilters(filters.filter(filter => filter.field !== 'name'));
+            return setFilters(formatedFilters);
         }
 
         setFilters([
-            ...filters,
+            ...formatedFilters,
             {
                 field: 'name',
                 value: name,
@@ -47,8 +45,30 @@ export default function MembersListScreen() {
         ]);
     });
 
+    const loaderRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!hasNextPage) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                fetchNextPage();
+            }
+        });
+
+        if (loaderRef.current) {
+            observer.observe(loaderRef.current);
+        }
+
+        return () => {
+            if (loaderRef.current) {
+                observer.unobserve(loaderRef.current);
+            }
+        };
+    }, [fetchNextPage, hasNextPage]);
+
     return (
-        <div className="flex flex-col p-4">
+        <div className="flex flex-1 flex-col p-4">
             <div className="flex flex-row gap-2 items-center mb-4">
                 <div className="flex flex-col gap-1 flex-1">
                     <p className="text-3xl font-bold">
@@ -56,14 +76,14 @@ export default function MembersListScreen() {
                     </p>
 
                     <span className="text-muted-foreground">
-                        {!isLoading ? `${members?.length} alunos` : <Skeleton className="h-6 w-20" />}
+                        {members?.length} alunos
                     </span>
                 </div>
 
                 <Button
                     variant="outline"
                     className="aspect-square"
-                    onClick={handleNovo}
+                    onClick={() => navigate("/members/create")}
                 >
                     <PlusIcon className="opacity-60" size={16} aria-hidden="true" />
                     <span>Novo</span>
@@ -76,18 +96,33 @@ export default function MembersListScreen() {
                 onChange={(e) => handleSearch(e.target.value)}
             />
 
-            {!isLoading && members?.map(member => (
-                <MemberCard
-                    key={member.id}
-                    member={member}
-                    onClickEdit={handleEdit}
-                    className="mb-4"
-                />
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                {members?.map(member => (
+                    <MemberCard
+                        key={member.id}
+                        member={member}
+                        onClickEdit={() => navigate(`/members/edit/${member.id}`)}
+                    />
+                ))}
 
-            {isLoading && Array.from({ length: 10 }).map((_, index) => (
+                {isLoading || isFetchingNextPage && <MembersListLoader pageSize={pageSize} />}
+            </div>
+
+            <div ref={loaderRef} className="h-10"></div>
+        </div>
+    )
+}
+
+type TMembersListLoaderProps = {
+    pageSize: number
+}
+
+function MembersListLoader({ pageSize }: TMembersListLoaderProps) {
+    return (
+        <>
+            {Array.from({ length: pageSize }).map((_, index) => (
                 <Skeleton key={index} className="h-50 w-full mb-4 rounded-lg" />
             ))}
-        </div>
+        </>
     )
 }

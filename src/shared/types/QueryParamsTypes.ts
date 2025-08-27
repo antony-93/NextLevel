@@ -3,8 +3,8 @@ import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 export type TQueryParams<T> = {
     sort?: TSort<T>[];
     filters?: TFilter<T>[];
-    limit?: number;
-    page?: number;
+    pageSize?: number;
+    startAfterValues?: (string | number | boolean | Date | null | undefined)[]; 
 }
 
 export type TSort<T> = {

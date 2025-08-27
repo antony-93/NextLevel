@@ -1,13 +1,15 @@
 import type { TQueryParams } from '@/shared/types/QueryParamsTypes';
 import type { IRepositoryProvider } from '../interfaces/RepositoryProviderInterface';
 import type { IRepository } from '../interfaces/RepositoryInterface';
+import type { TPaginatedResult } from '../types/PaginatedResultType';
+
 export default abstract class Repository<T> implements IRepository<T> {
     constructor(
         private readonly _repositoryProvider: IRepositoryProvider<T>
     ) {
     }
 
-    async get(queryParams: TQueryParams<T>): Promise<T[]> {
+    async get(queryParams: TQueryParams<T>): Promise<TPaginatedResult<T>> {
         return this._repositoryProvider.get(queryParams);
     }
 

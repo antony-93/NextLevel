@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { RiCalendarCheckLine } from "@remixicon/react"
 import {
   addDays,
@@ -24,7 +24,7 @@ export interface AgendaProps {
   currentDate: Date
   onClickFilterButton?: () => void
   setCurrentDate: (date: Date) => void
-  onFilterDateChange: (initialDate: Date, finalDate: Date) => void
+  onFilterDateChange?: (initialDate: Date, finalDate: Date) => void
 }
 
 export function AgendaCalendar({
@@ -33,8 +33,7 @@ export function AgendaCalendar({
   children,
   currentDate = new Date(),
   onClickFilterButton,
-  setCurrentDate,
-  onFilterDateChange
+  setCurrentDate
 }: AgendaProps) {
 
   const handlePrevious = () => {
@@ -52,8 +51,6 @@ export function AgendaCalendar({
   const viewTitle = useMemo(() => {
     const start = currentDate,
       end = addDays(currentDate, AgendaDaysToShow - 1)
-
-    onFilterDateChange(start, end)
 
     if (isSameMonth(start, end)) {
       return format(start, "MMMM yyyy")
@@ -88,7 +85,7 @@ export function AgendaCalendar({
             size={16}
             aria-hidden="true"
           />
-          <span className="max-[479px]:sr-only">Today</span>
+          <span className="max-[479px]:sr-only">Hoje</span>
         </Button>
 
         <div className="flex items-center gap-2">

@@ -21,12 +21,20 @@ import {
     doc,
     count,
     type DocumentData,
-    Timestamp
+    Timestamp,
+    Query,
+    limit,
+    DocumentSnapshot,
+    startAfter
 } from "firebase/firestore";
+import type { TPaginatedResult } from "@/shared/types/PaginatedResultType";
+import { v4 } from "uuid";
+import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 
 
 export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
     private userId: string | undefined;
+    private cursorMap: Map<string, DocumentSnapshot> = new Map();
 
     constructor(
         private collectionName: string,
@@ -39,37 +47,56 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
         return collection(db, this.collectionName);
     }
 
-    protected getQuery(filters?: TFilter<T>[], sort?: TSort<T>[]) {
+    protected getQuery(filters?: TFilter<T>[], sort?: TSort<T>[], startAfterValues?: (string | number | boolean | Date | null | undefined)[], pageSize?: number): Query {
         let dataQuery = this.userId ? query(this.getCollection(), where('userId', '==', this.userId)) : this.getCollection();
 
-        if (!sort?.length && !filters?.length) return dataQuery;
+        dataQuery = this.applyFilters(dataQuery, filters || []);
 
-        if (filters?.length) {
-            filters.forEach(filter => {
-                dataQuery = query(
-                    dataQuery,
-                    where(
-                        filter.field === 'id' ? documentId() : filter.field,
-                        filter.operator as WhereFilterOp,
-                        filter.value
-                    )
-                );
-            });
-        }
+        dataQuery = this.applySort(dataQuery, sort);
 
-        if (sort?.length) {
-            sort.forEach(s => {
-                dataQuery = query(
-                    dataQuery,
-                    orderBy(
-                        s.field === 'id' ? documentId() : s.field,
-                        s.direction
-                    )
-                );
-            });
-        }
+        dataQuery = this.applyStartAfter(dataQuery, startAfterValues);
+
+        dataQuery = this.applyPagination(dataQuery, pageSize);
 
         return dataQuery;
+    }
+
+    protected applyFilters(dataQuery: Query, filters?: TFilter<T>[]): Query {
+        return filters?.reduce((currentQuery, filter) => {
+            return query(
+                currentQuery,
+                where(
+                    filter.field === 'id' ? documentId() : filter.field,
+                    filter.operator as WhereFilterOp,
+                    filter.value
+                )
+            );
+        }, dataQuery) || dataQuery;
+    }
+
+    protected applySort(dataQuery: Query, sort?: TSort<T>[]): Query {
+        if (!sort || sort.length === 0) {
+            return query(dataQuery, orderBy(documentId()));
+        }
+
+        return sort.reduce((currentQuery, s) => {
+            return query(
+                currentQuery,
+                orderBy(s.field === 'id' ? documentId() : s.field, s.direction)
+            );
+        }, dataQuery);
+    }
+
+    protected applyPagination(dataQuery: Query, pageSize?: number): Query {
+        if (!pageSize) return dataQuery;
+        
+        return query(dataQuery, limit(pageSize + 1));
+    }
+
+    protected applyStartAfter(dataQuery: Query, startAfterValues?: (string | number | boolean | Date | null | undefined)[]): Query {
+        if (!startAfterValues || startAfterValues.length === 0) return dataQuery;
+        
+        return query(dataQuery, startAfter(...startAfterValues));
     }
 
     protected formatDocumentData<T extends DocumentData>(docData: T): T {
@@ -98,22 +125,66 @@ export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
         return cleanData as Partial<T>;
     }
 
-    async get(queryParams: TQueryParams<T>): Promise<T[]> {
+    protected getSortFields(sort?: TSort<T>[], filters?: TFilter<T>[]): TSort<T>[] {
+        if (sort && sort.length > 0) return sort;
+
+        const rangeFilterField = filters?.find(f => 
+            f.operator === EnumFilterOperator.GreaterThanOrEquals || 
+                f.operator === EnumFilterOperator.LessThanOrEquals ||
+                f.operator === EnumFilterOperator.GreaterThan ||
+                f.operator === EnumFilterOperator.LessThan
+        )?.field;
+
+        if (rangeFilterField) {
+            return [{ field: rangeFilterField, direction: 'asc' }];
+        }
+
+        return [{ field: 'id' as keyof T & string, direction: 'asc' }];
+    }
+
+    async get(queryParams: TQueryParams<T>): Promise<TPaginatedResult<T>> {
         try {
-            const {
-                filters,
-                sort
-            } = queryParams;
+            const sortFields = this.getSortFields(queryParams.sort, queryParams.filters);
 
-            const querySnapshot = await getDocs(this.getQuery(filters, sort));
+            const dataQuery = this.getQuery(queryParams.filters, sortFields, queryParams.startAfterValues, queryParams.pageSize);
 
-            const data = querySnapshot.docs.map(doc => ({
+            const querySnapshot = await getDocs(dataQuery);
+
+            const hasMore = (queryParams.pageSize !== undefined) && (querySnapshot.docs.length > queryParams.pageSize);
+
+            const docsForCurrentPage = hasMore ? querySnapshot.docs.slice(0, queryParams.pageSize) : querySnapshot.docs;
+
+            let nextPageCursorValues: (string | number | boolean | Date | null | undefined)[] | undefined = undefined;
+            
+            if (hasMore) {
+                const lastDoc = docsForCurrentPage[docsForCurrentPage.length - 1];
+
+                nextPageCursorValues = [];
+                
+                for (const s of sortFields) {
+                    if (s.field === 'id') {
+                        nextPageCursorValues.push(lastDoc.id);
+                        continue;
+                    } 
+                        
+                    nextPageCursorValues.push(lastDoc.data()[s.field as string]);
+                }
+
+                if (!sortFields || sortFields.length === 0) {
+                    nextPageCursorValues.push(lastDoc.id);
+                }
+            }
+
+            const data = docsForCurrentPage.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
 
-
-            return data.map(this.formatDocumentData) as T[];
+            return {
+                data: data.map(this.formatDocumentData) as T[],
+                hasMore: hasMore,
+                nextPageCursorValues: nextPageCursorValues
+            };
         } catch (error) {
             throw ErrorFactory.create(error);
         }

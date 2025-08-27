@@ -9,5 +9,6 @@ export {
     SidebarGroupContent,
     SidebarMenu,
     SidebarMenuItem,
-    SidebarMenuButton
+    SidebarMenuButton,
+    useSidebar
 } from "./ui/sidebar"

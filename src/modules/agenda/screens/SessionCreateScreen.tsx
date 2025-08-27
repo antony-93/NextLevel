@@ -15,7 +15,8 @@ export default function SessionCreateScreen() {
 
     const onSubmit = async (session: Session) => {
         await createSession({ data: session, refetch: true });
-        navigate("/sessions");
+        debugger;
+        // navigate(`/sessions/details/${session.id}`);
     }
 
     return (
@@ -28,7 +29,7 @@ export default function SessionCreateScreen() {
                 <Button
                     variant="outline"
                     className="aspect-square"
-                    onClick={() => navigate("/sessions")}
+                    onClick={() => navigate("/sessions/agenda")}
                 >
                     <X className="opacity-60" size={16} aria-hidden="true" />
                 </Button>

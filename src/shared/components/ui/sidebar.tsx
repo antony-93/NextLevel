@@ -252,13 +252,13 @@ function Sidebar({
 }
 
 type SidebarTriggerProps = React.ComponentProps<typeof Button> & {
-  iconSize?: number
+  iconClassName?: string
 }
 
 function SidebarTrigger({
   className,
   onClick,
-  iconSize = 20,
+  iconClassName = "!size-5",
   ...props
 }: SidebarTriggerProps) {
   const { toggleSidebar } = useSidebar()
@@ -276,7 +276,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon size={iconSize} />
+      <PanelLeftIcon className={iconClassName} />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

@@ -1,31 +1,57 @@
-import { useQuery, useQueryById } from "@/shared/hooks/UseQuery";
-import type { TFilter, TQueryParams } from "@/shared/types/QueryParamsTypes";
-import { useState } from "react";
+import { useQueryById, useQueryInfinite } from "@/shared/hooks/UseQuery";
+import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import SessionRepository from "../repository/SessionRepository";
 import type Session from "../domain/entities/Session";
 import { useMutation } from "@/shared/hooks/UseMutation";
+import { useQueryParams } from "@/shared/hooks/UseQueryParams";
+import { useMemo } from "react";
 
-export function useSessions(params?: TQueryParams<Session>) {
-    const [
-        filters, 
-        setFilters
-    ] = useState<TFilter<Session>[]>(params?.filters ?? []);
-    
+export function useInfiniteSessions(params?: TQueryParams<Session>) {
     const {
-        data: sessions,
+        filters,
+        setFilters,
+        sort,
+        setSort,
+        pageSize,
+        setPageSize,
+    } = useQueryParams<Session>(params, {
+        pageSize: 5
+    });
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
         isLoading,
         isError,
-        error
-    } = useQuery({
+        error,
+        isFetchingNextPage
+    } = useQueryInfinite({
         repository: new SessionRepository(),
         queryKey: 'sessions',
-        filters,
+        queryParams: {
+            filters,
+            sort,
+            pageSize
+        }
     });
+
+    const sessions = useMemo(() => {
+        if (!data || !('pages' in data)) return [];
+        return data.pages.flatMap(page => page.data);
+    }, [data]);
 
     return {
         sessions,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         filters,
         setFilters,
+        setSort,
+        sort,
+        pageSize,
+        setPageSize,
         isLoading,
         isError,
         error

@@ -7,14 +7,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select"
+import { Input } from "./ui/input";
+import { Loader2 } from "lucide-react";
 
 type SelectProps = React.ComponentProps<typeof UISelect> & {
   label: string;
   error?: string;
   placeholder?: string;
+  onSearch?: (value: string) => void;
+  searchPlaceholder?: string;
+  isLoadingList?: boolean;
+  isLoadingNextPage?: boolean;
 }
 
-export default function Select({ label, required, children, placeholder, error, ...props }: SelectProps) {
+export default function Select({ 
+  label, 
+  required, 
+  children, 
+  placeholder, 
+  error, 
+  onSearch,
+  searchPlaceholder = "Pesquisar",
+  isLoadingList = false,
+  isLoadingNextPage = false,
+  ...props 
+}: SelectProps) {
   const id = useId()
   return (
     <div className="*:not-first:mt-2">
@@ -32,7 +49,21 @@ export default function Select({ label, required, children, placeholder, error, 
         </SelectTrigger>
         
         <SelectContent>
-          {children}
+          {onSearch && (
+            <Input 
+              placeholder={searchPlaceholder} 
+              onChange={(e) => onSearch(e.target.value)} 
+              className="mb-2"  
+            />
+          )}
+          {isLoadingList ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            children
+          )}
+          {isLoadingNextPage && (
+            <Loader2 className="animate-spin" />
+          )}
         </SelectContent>
       </UISelect>
       {

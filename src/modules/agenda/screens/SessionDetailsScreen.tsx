@@ -5,8 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import TabDataSession from "./tabs/TabDataSession";
 import TabParticipants from "./tabs/TabParticipants";
 import { SessionContextProvider } from "../context/UseEditSessionContext";
-import { useSession, useSessionMutations } from "../hooks/UseSession";
-import { EnumStatusSession } from "../domain/enums/EnumStatusSession";
+import { useSession } from "../hooks/UseSession";
 
 export default function SessionDetailsScreen() {
     const navigate = useNavigate();

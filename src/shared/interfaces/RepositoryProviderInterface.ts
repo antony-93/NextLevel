@@ -1,7 +1,8 @@
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
+import type { TPaginatedResult } from "../types/PaginatedResultType";
 
 export interface IRepositoryProvider<T> {
-    get(queryParams: TQueryParams<T>): Promise<T[]>;
+    get(queryParams: TQueryParams<T>): Promise<TPaginatedResult<T>>;
 
     getById(id: string): Promise<T | null>;
     

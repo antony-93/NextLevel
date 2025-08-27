@@ -25,8 +25,13 @@ export default function MemberEditScreen() {
             refetch: true
         });
         
-        navigate("/members");
+        navigate("/members/list");
     }, [updateMember, navigate, id]);
+
+    const {
+        member,
+        isLoading
+    } = useMember(id!);
 
     return (
         <div className="min-h-screen p-4">
@@ -38,41 +43,22 @@ export default function MemberEditScreen() {
                 <Button
                     variant="outline"
                     className="aspect-square"
-                    onClick={() => navigate("/members")}
+                    onClick={() => navigate("/members/list")}
                 >
                     <X className="opacity-60" size={16} aria-hidden="true" />
                 </Button>
             </div>
 
-            <MemberFormLoader id={id!} onSubmit={onSubmit} updateMemberLoading={updateMemberLoading} />
+            {isLoading ? (
+                <div>Carregando...</div>
+            ) : (
+                <MemberForm
+                    onSubmit={onSubmit}
+                    onClickCancel={() => navigate("/members/list")}
+                    isSaving={updateMemberLoading}
+                    member={member}
+                />
+            )}
         </div>
-    );
-}
-
-type MemberFormLoaderProps = {
-    id: string;
-    onSubmit: (member: Member) => void;
-    updateMemberLoading: boolean;
-}
-
-function MemberFormLoader({ id, onSubmit, updateMemberLoading }: MemberFormLoaderProps) {
-    const navigate = useNavigate();
-
-    const {
-        member,
-        isLoading
-    } = useMember(id);
-
-    if (isLoading) {
-        return <div>Carregando...</div>;
-    }
-
-    return (
-        <MemberForm
-            onSubmit={onSubmit}
-            onClickCancel={() => navigate("/members")}
-            isSaving={updateMemberLoading}
-            member={member}
-        />
     );
 }

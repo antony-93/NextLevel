@@ -16,7 +16,7 @@ export default function MemberCreateScreen() {
 
     const onSubmit = async (member: Member) => {
         await createMember({ data: member, refetch: true });
-        navigate("/members");
+        navigate("/members/list");
     }
 
     return (
@@ -29,7 +29,7 @@ export default function MemberCreateScreen() {
                 <Button
                     variant="outline"
                     className="aspect-square"
-                    onClick={() => navigate("/members")}
+                    onClick={() => navigate("/members/list")}
                 >
                     <X className="opacity-60" size={16} aria-hidden="true" />
                 </Button>
