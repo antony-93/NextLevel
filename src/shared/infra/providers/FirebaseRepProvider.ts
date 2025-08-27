@@ -24,17 +24,14 @@ import {
     Timestamp,
     Query,
     limit,
-    DocumentSnapshot,
     startAfter
 } from "firebase/firestore";
 import type { TPaginatedResult } from "@/shared/types/PaginatedResultType";
-import { v4 } from "uuid";
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 
 
 export default class FirebaseRepProvider<T> implements IRepositoryProvider<T> {
     private userId: string | undefined;
-    private cursorMap: Map<string, DocumentSnapshot> = new Map();
 
     constructor(
         private collectionName: string,

@@ -4,14 +4,20 @@ import { SelectItem } from "@/shared/components/ui/select";
 import { useEffect, useRef } from "react";
 import { useDebouncedCallback } from "@/shared/hooks/UseDebounce";
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
+import type Member from "../../domain/entities/Member";
+import { cn } from "@/shared/utils/utils";
 
 type MembersComboboxProps = Omit<
     React.ComponentProps<typeof Select>,
     "onSearch" | "isLoadingList" | "isLoadingNextPage"
->;
-
+> & {
+    onChange: (member: Member) => void;
+    className?: string;
+};
 
 export default function MembersCombobox({
+    onChange,
+    className,
     ...props
 }: MembersComboboxProps) {
     const {
@@ -67,10 +73,19 @@ export default function MembersCombobox({
             }
         ]);
     });
+
+    const handleSelect = (value: string) => {
+        const selectedMember = members.find(member => member.id === value);
+
+        if (selectedMember) onChange(selectedMember);
+    }
+
     return (
         <Select
             {...props}
+            className={cn("mb-4", className)}
             searchPlaceholder="Pesquisar membros"
+            onValueChange={handleSelect}
             onSearch={handleSearch}
             isLoadingList={isLoading}
             isLoadingNextPage={isFetchingNextPage}
@@ -87,7 +102,7 @@ export default function MembersCombobox({
                 </SelectItem>
             )}
 
-            <div ref={loaderRef} className="h-2" />
+            <div ref={loaderRef}></div>
         </Select>
     )
 }

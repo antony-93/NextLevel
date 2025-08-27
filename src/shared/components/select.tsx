@@ -9,6 +9,7 @@ import {
 } from "@/shared/components/ui/select"
 import { Input } from "./ui/input";
 import { Loader2 } from "lucide-react";
+import { cn } from "../utils/utils";
 
 type SelectProps = React.ComponentProps<typeof UISelect> & {
   label: string;
@@ -17,6 +18,7 @@ type SelectProps = React.ComponentProps<typeof UISelect> & {
   onSearch?: (value: string) => void;
   searchPlaceholder?: string;
   isLoadingList?: boolean;
+  className?: string;
   isLoadingNextPage?: boolean;
 }
 
@@ -24,17 +26,18 @@ export default function Select({
   label, 
   required, 
   children, 
-  placeholder, 
+  placeholder = 'Selecionar', 
   error, 
   onSearch,
   searchPlaceholder = "Pesquisar",
   isLoadingList = false,
   isLoadingNextPage = false,
+  className,
   ...props 
 }: SelectProps) {
   const id = useId()
   return (
-    <div className="*:not-first:mt-2">
+    <div className={cn("*:not-first:mt-2", className)}>
       {label && <Label htmlFor={id}>{label}{required && <span className="text-destructive">*</span>}</Label>}
 
       <UISelect  

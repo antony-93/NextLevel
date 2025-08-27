@@ -37,7 +37,7 @@ export default function MenuSidebar() {
                 </div>
 
                 <p className="text-2xl font-bold">
-                    Next Level
+                    Level
                 </p>
             </SidebarHeader>
 

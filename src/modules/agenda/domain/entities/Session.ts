@@ -13,14 +13,9 @@ export default class Session {
         public maxParticipants: number,
         public allowJoinAfterStart: boolean,
         public id?: string,
-        public participants?: SessionParticipants[],
     ) { }
 
-    get participantsCount(): number {
-        return this.participants?.length ?? 0;
-    }
-
-    canAddMember(): TDomainResult {
+    canAddParticipant(quantParticipants: number): TDomainResult {
         if (this.status === EnumStatusSession.COMPLETED) {
             return {
                 success: false,
@@ -28,7 +23,7 @@ export default class Session {
             }
         }
 
-        if (this.participantsCount >= this.maxParticipants) {
+        if (quantParticipants >= this.maxParticipants) {
             return {
                 success: false,
                 message: 'Máximo de participantes atingido'

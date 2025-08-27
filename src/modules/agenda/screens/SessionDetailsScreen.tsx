@@ -6,6 +6,8 @@ import TabDataSession from "./tabs/TabDataSession";
 import TabParticipants from "./tabs/TabParticipants";
 import { SessionContextProvider } from "../context/UseEditSessionContext";
 import { useSession } from "../hooks/UseSession";
+import Session from "../domain/entities/Session";
+import { useMemo } from "react";
 
 export default function SessionDetailsScreen() {
     const navigate = useNavigate();
@@ -37,13 +39,34 @@ type SessionDetailsLoaderProps = {
 
 function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
     const {
-        session,
+        session: sessionData,
         isLoading
     } = useSession(id);
+
+    const session: Session | null = useMemo(() => {
+        if (!sessionData) return null;
+        
+        return new Session(
+            sessionData.description,
+            sessionData.status,
+            sessionData.sessionType,
+            sessionData.sessionDate,
+            sessionData.sessionHour,
+            sessionData.maxParticipants,
+            sessionData.allowJoinAfterStart,
+            sessionData.id,
+        );
+    }, [sessionData]);
 
     if (isLoading) {
         return (
             <Loader2 />
+        )
+    }
+
+    if (!session) {
+        return (
+            <div>Erro ao carregar a sessão</div>
         )
     }
 
@@ -54,7 +77,7 @@ function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
                 <TabTrigger label="Participantes" value="tab-2" />
             </TabsList>
 
-            <SessionContextProvider session={session!}>
+            <SessionContextProvider session={session}>
                 <TabsContent className="flex-1 flex-col flex" value="tab-1">
                     <TabDataSession className="flex-1" />
                 </TabsContent>

@@ -15,7 +15,6 @@ export default function SessionCreateScreen() {
 
     const onSubmit = async (session: Session) => {
         await createSession({ data: session, refetch: true });
-        debugger;
         // navigate(`/sessions/details/${session.id}`);
     }
 
