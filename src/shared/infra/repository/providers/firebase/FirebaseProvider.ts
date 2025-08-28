@@ -25,7 +25,7 @@ import {
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 import type { TPaginatedResult } from "@/shared/types/PaginatedResultType";
 
-export default class FirebaseProvider<T> {
+export default class FirebaseProvider<Entity> {
     protected userId: string | undefined;
 
     constructor(
@@ -39,7 +39,7 @@ export default class FirebaseProvider<T> {
         return collection(db, this.collectionName);
     }
 
-    getQuery(filters?: TFilter<T>[], sort?: TSort<T>[], startAfterValues?: TStartAfterValues, pageSize?: number): Query {
+    getQuery(filters?: TFilter<Entity>[], sort?: TSort<Entity>[], startAfterValues?: TStartAfterValues, pageSize?: number): Query {
         let dataQuery = this.userId ? query(this.getCollection(), where('userId', '==', this.userId)) : this.getCollection();
 
         dataQuery = this.applyFilters(dataQuery, filters || []);
@@ -53,7 +53,7 @@ export default class FirebaseProvider<T> {
         return dataQuery;
     }
 
-    applyFilters(dataQuery: Query, filters?: TFilter<T>[]): Query {
+    applyFilters(dataQuery: Query, filters?: TFilter<Entity>[]): Query {
         return filters?.reduce((currentQuery, filter) => {
             return query(
                 currentQuery,
@@ -66,7 +66,7 @@ export default class FirebaseProvider<T> {
         }, dataQuery) || dataQuery;
     }
 
-    applySort(dataQuery: Query, sort?: TSort<T>[]): Query {
+    applySort(dataQuery: Query, sort?: TSort<Entity>[]): Query {
         if (!sort || sort.length === 0) {
             return query(dataQuery, orderBy(documentId()));
         }
@@ -91,7 +91,7 @@ export default class FirebaseProvider<T> {
         return query(dataQuery, startAfter(...startAfterValues));
     }
 
-    formatDocumentData<T extends DocumentData>(docData: T): T {
+    formatDocumentData<Entity extends DocumentData>(docData: Entity): Entity {
         const convertedData: any = { ...docData };
 
         for (const key in convertedData) {
@@ -104,20 +104,20 @@ export default class FirebaseProvider<T> {
             }
         }
 
-        return convertedData as T;
+        return convertedData as Entity;
     }
 
-    cleanData<T extends DocumentData>(data: Partial<T>): Partial<T> {
+    cleanData<Entity extends DocumentData>(data: Partial<Entity>): Partial<Entity> {
         const cleanData = Object.fromEntries(
             Object.entries(data as any).filter(([_, value]) => value !== undefined)
         );
 
         delete data.id;
 
-        return cleanData as Partial<T>;
+        return cleanData as Partial<Entity>;
     }
 
-    getSortFields(sort?: TSort<T>[], filters?: TFilter<T>[]): TSort<T>[] {
+    getSortFields(sort?: TSort<Entity>[], filters?: TFilter<Entity>[]): TSort<Entity>[] {
         if (sort && sort.length > 0) return sort;
 
         const rangeFilterField = filters?.find(f =>
@@ -131,10 +131,10 @@ export default class FirebaseProvider<T> {
             return [{ field: rangeFilterField, direction: 'asc' }];
         }
 
-        return [{ field: 'id' as keyof T & string, direction: 'asc' }];
+        return [{ field: 'id' as keyof Entity & string, direction: 'asc' }];
     }
 
-    async getDocs(queryParams: TQueryParams<T>): Promise<TPaginatedResult<T>> {
+    async getDocs(queryParams: TQueryParams<Entity>): Promise<TPaginatedResult<Entity>> {
         const sortFields = this.getSortFields(queryParams.sort, queryParams.filters);
 
         const dataQuery = this.getQuery(queryParams.filters, sortFields, queryParams.startAfterValues, queryParams.pageSize);
@@ -172,22 +172,22 @@ export default class FirebaseProvider<T> {
         }));
 
         return {
-            data: data.map(this.formatDocumentData) as T[],
+            data: data.map(this.formatDocumentData) as Entity[],
             hasMore: hasMore,
             nextPageCursorValues: nextPageCursorValues
         };
     }
 
-    async getDocById(id: string): Promise<T | null> {
+    async getDocById(id: string): Promise<Entity | null> {
         const docRef = doc(db, this.collectionName, id),
             docSnap = await getDoc(docRef);
 
         return this.formatDocumentData({
             ...docSnap.data()
-        }) as T;
+        }) as Entity;
     }
 
-    async getCountDocs(queryParams: TQueryParams<T>): Promise<number> {
+    async getCountDocs(queryParams: TQueryParams<Entity>): Promise<number> {
         const querySnapshot = await getAggregateFromServer(this.getQuery(queryParams.filters, queryParams.sort), {
             count: count()
         });
@@ -195,7 +195,7 @@ export default class FirebaseProvider<T> {
         return querySnapshot.data().count || 0;
     }
 
-    async createDoc(data: Omit<T, 'id'>): Promise<T> {
+    async createDoc(data: Omit<Entity, 'id'>): Promise<Entity> {
         const cleanData = this.cleanData(data);
 
         const docData = {
@@ -205,10 +205,10 @@ export default class FirebaseProvider<T> {
 
         const docRef = await addDoc(this.getCollection(), docData);
 
-        return { id: docRef.id, ...data } as T;
+        return { id: docRef.id, ...data } as Entity;
     }
 
-    async updateDoc(id: string, data: Partial<T>): Promise<Partial<T>> {
+    async updateDoc(id: string, data: Partial<Entity>): Promise<Partial<Entity>> {
         const docRef = doc(db, this.collectionName, id);
 
         await updateDoc(docRef, {
@@ -216,7 +216,7 @@ export default class FirebaseProvider<T> {
             updatedAt: new Date()
         });
 
-        return { id, ...data } as unknown as Partial<T>;
+        return { id, ...data } as unknown as Partial<Entity>;
     }
 
     async deleteDoc(id: string): Promise<void> {

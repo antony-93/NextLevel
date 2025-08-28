@@ -1,25 +1,35 @@
 import { useNavigate } from "react-router-dom";
-import { useSessionMutations } from "../hooks/UseSessionApi";
-import type Session from "../domain/entities/Session";
 import SessionForm from "../components/form/SessionForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { FormContainer } from "@/shared/components/Container";
-import { toastSuccess } from "@/shared/components/Toast";
+import { useCreateSession } from "../hooks/UseSessionApi";
+import type { TSessionFormData } from "../types/SessionFormDataTypes";
+import type { TSaveSessionDto } from "../domain/dto/SaveSessionDto";
+import { EnumStatusSession } from "../domain/enums/EnumStatusSession";
 
 export default function SessionCreateScreen() {
     const {
         createSession,
-        createSessionLoading
-    } = useSessionMutations();
+        isCreatingSession
+    } = useCreateSession();
 
     const navigate = useNavigate();
 
-    const onSubmit = async (session: Session) => {
-        await createSession({ data: session, refetch: true });
+    const onSubmit = async (session: TSessionFormData) => {
+        const dto: TSaveSessionDto = {
+            description: session.description,
+            sessionType: session.sessionType,
+            status: EnumStatusSession.PENDING,
+            sessionDate: session.sessionDate,
+            sessionHour: session.sessionHour,
+            maxParticipants: session.maxParticipants,
+            allowJoinAfterStart: session.allowJoinAfterStart
+        };
 
-        toastSuccess("Sucesso!", "Aula criada com sucesso!");
-        // navigate(`/sessions/details/${session.id}`);
-    }
+        const createResult = await createSession(dto);
+
+        navigate(`/sessions/details/${createResult.id}`);
+    };
 
     return (
         <FormContainer className="h-full">
@@ -37,7 +47,7 @@ export default function SessionCreateScreen() {
                 <SessionForm
                     onSubmit={onSubmit}
                     onClickCancel={() => navigate("/sessions")}
-                    isSaving={createSessionLoading}
+                    isSaving={isCreatingSession}
                 />
             </div>
         </FormContainer>

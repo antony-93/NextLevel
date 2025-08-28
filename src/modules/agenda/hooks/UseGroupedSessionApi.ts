@@ -1,6 +1,6 @@
 import { useInfiniteSessionsQuery } from "./UseSessionApi";
 import { useMemo } from "react";
-import type { TGroupedSession, TSessionGroupedSession } from "../types/GroupedSessionTypes";
+import type { TGroupedSession } from "../types/GroupedSessionTypes";
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import type Session from "../domain/entities/Session";
 
@@ -33,17 +33,11 @@ export function useGroupedSessionByDate(queryParams: TQueryParams<Session>) {
                 return groupDateOnly.getTime() === sessionDateOnly.getTime();
             });
 
-            if (existingGroup) return existingGroup.sessions.push({
-                ...session,
-                quantParticipants: 0
-            } as TSessionGroupedSession);
+            if (existingGroup) return existingGroup.sessions.push(session);
 
             groups.push({
                 sessionDate: sessionDateOnly,
-                sessions: [{
-                    ...session,
-                    quantParticipants: 0
-                } as TSessionGroupedSession]
+                sessions: [session]
             });
         });
 

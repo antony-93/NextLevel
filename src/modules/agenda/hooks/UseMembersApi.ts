@@ -4,6 +4,8 @@ import type Member from "../domain/entities/Member";
 import MemberRepository from "../repository/MemberRepository";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
 
+const _repository = new MemberRepository();
+
 export function useInfiniteMembers(params?: TQueryParams<Member>) {
     const {
         filters,
@@ -28,7 +30,7 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
         error,
         isFetchingNextPage
     } = useQueryInfinite({
-        repository: new MemberRepository(),
+        repository: _repository,
         queryKey: 'members',
         queryParams: {
             filters,

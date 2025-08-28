@@ -1,15 +1,13 @@
 import { AgendaCalendar, AgendaDaysToShow } from "@/shared/components/agenda"
-import { Button } from "@/shared/components/ui/button"
-import { PlusIcon } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { useGroupedSessionByDate } from "../hooks/UseGroupedSessionApi";
 import GroupedSessionCard from "../components/card/GroupedSessionCard";
-import type { TSessionGroupedSession } from "../types/GroupedSessionTypes";
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 import { Skeleton } from "@/shared/components/skeleton";
 import { addDays } from "date-fns";
 import { NewButton } from "@/shared/components/button";
+import type Session from "../domain/entities/Session";
 
 export default function AgendaScreen() {
   const [currentDate, setCurrentDate] = useState(() => {
@@ -43,11 +41,11 @@ export default function AgendaScreen() {
     ]
   });
 
-  const handleEdit = useCallback((session: TSessionGroupedSession) => {
+  const handleEdit = useCallback((session: Session) => {
     navigate(`/sessions/edit/${session.id}`);
   }, [navigate]);
 
-  const handleMembers = useCallback((session: TSessionGroupedSession) => {
+  const handleMembers = useCallback((session: Session) => {
     navigate(`/sessions/details/${session.id}`);
   }, [navigate]);
 

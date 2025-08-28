@@ -1,23 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import { useMemberMutations } from "../hooks/UseMemberApi";
-import Member from "../domain/entities/Member";
 import MemberForm from "../components/form/MemberForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { FormContainer } from "@/shared/components/Container";
+import { useCreateMember } from "../hooks/UseMemberApi";
+import { useCallback } from "react";
+import type { TMemberFormData } from "../types/MemberFormDataTypes";
 
 
 export default function MemberCreateScreen() {
     const {
         createMember,
-        createMemberLoading
-    } = useMemberMutations();
+        isCreatingMember
+    } = useCreateMember();
 
     const navigate = useNavigate();
 
-    const onSubmit = async (member: Member) => {
-        await createMember({ data: member, refetch: true });
+    const onSubmit = useCallback(async (member: TMemberFormData) => {
+        await createMember(member);
         navigate("/members/list");
-    }
+    }, [createMember, navigate]);
 
     return (
         <FormContainer>
@@ -34,7 +35,7 @@ export default function MemberCreateScreen() {
             <MemberForm
                 onSubmit={onSubmit}
                 onClickCancel={() => navigate("/members")}
-                isSaving={createMemberLoading}
+                isSaving={isCreatingMember}
             />
         </FormContainer>
     );

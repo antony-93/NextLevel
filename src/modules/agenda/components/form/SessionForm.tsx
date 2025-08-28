@@ -1,6 +1,6 @@
-import { Button, CancelButton, SaveButton } from "@/shared/components/button";
+import { CancelButton, SaveButton } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { Clipboard, Loader2, Save, Users, X } from "lucide-react";
+import { Clipboard, Users } from "lucide-react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,10 +14,10 @@ import DateField from "@/shared/components/datafield";
 import HourField from "@/shared/components/hourfield";
 import Checkbox from "@/shared/components/checkbox";
 import { FormContainerButton } from "@/shared/components/Container";
+import type { TSessionFormData } from "../../types/SessionFormDataTypes";
 
 const formSchema = z.object({
     description: z.string().min(1, { message: "Descrição é obrigatória" }),
-    status: z.enum(EnumStatusSession, { message: "Status é obrigatório" }),
     sessionType: z.enum(EnumSessionType, { message: "Tipo de aula é obrigatório" }),
     sessionDate: z.date({ message: "Data da aula é obrigatória" })
         .refine(date => {
@@ -39,7 +39,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 type SessionFormProps = {
-    onSubmit: (session: Session) => void;
+    onSubmit: (session: TSessionFormData) => void;
     onClickCancel: () => void;
     session?: Session | null;
     isSaving?: boolean;
@@ -52,7 +52,6 @@ export default function SessionForm({ onSubmit, onClickCancel, session, isSaving
         mode: "onBlur",
         defaultValues: {
             description: session?.description,
-            status: session?.status || EnumStatusSession.PENDING,
             sessionType: session?.sessionType || EnumSessionType.CROSSFIT,
             sessionDate: session?.sessionDate,
             sessionHour: session?.sessionHour || "08:00",
@@ -66,15 +65,7 @@ export default function SessionForm({ onSubmit, onClickCancel, session, isSaving
 
         data.sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-        const session = new Session(
-            data.description,
-            data.status,
-            data.sessionType,
-            data.sessionDate,
-            data.sessionHour,
-            data.maxParticipants,
-            data.allowJoinAfterStart
-        );
+        const session: TSessionFormData = data;
 
         onSubmit(session);
     }

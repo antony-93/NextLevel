@@ -1,9 +1,12 @@
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
-import type Member from "../domain/entities/Member";
+import Member from "../domain/entities/Member";
 import MemberRepository from "../repository/MemberRepository";
 import { useQueryById, useQueryInfinite } from "@/shared/hooks/UseQuery";
-import { useMutation } from "@/shared/hooks/UseMutation";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
+import useActionMutation from "@/shared/hooks/UseActionMutation";
+import type { TSaveMemberDto } from "../domain/dto/SaveMemberDto";
+
+const _repository = new MemberRepository();
 
 export function useInfiniteMembers(params?: TQueryParams<Member>) {
     const {
@@ -29,7 +32,7 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
         error,
         isFetchingNextPage
     } = useQueryInfinite({
-        repository: new MemberRepository(),
+        repository: _repository,
         queryKey: 'members',
         queryParams: {
             filters,
@@ -62,7 +65,7 @@ export function useMember(id: string) {
         isError,
         error
     } = useQueryById<Member>({
-        repository: new MemberRepository(),
+        repository: _repository,
         queryKey: 'members',
         id
     });
@@ -75,22 +78,58 @@ export function useMember(id: string) {
     };
 }
 
-export function useMemberMutations() {
+export function useCreateMember() {
     const {
-        createMutation,
-        updateMutation,
-        deleteMutation,
-    } = useMutation({
-        repository: new MemberRepository(),
+        mutate: createMember,
+        isPending: isCreatingMember
+    } = useActionMutation<Member, TSaveMemberDto>({
+        mutationFn: async (dto: TSaveMemberDto) => {
+            const member = new Member(
+                dto.name,
+                dto.birthDate,
+                dto.plan,
+                dto.cpf,
+                dto.address,
+                dto.city,
+                dto.neighborhood
+            );
+
+            return await _repository.create(member);
+        },
+        successMessage: "Aluno criado com sucesso!",
         queryKey: 'members'
     });
 
     return {
-        createMember: createMutation.mutateAsync,
-        createMemberLoading: createMutation.isPending,
-        updateMember: updateMutation.mutateAsync,
-        updateMemberLoading: updateMutation.isPending,
-        deleteMember: deleteMutation.mutateAsync,
-        deleteMemberLoading: deleteMutation.isPending
+        createMember,
+        isCreatingMember
+    };
+}
+
+export function useUpdateMember(id: string) {
+    const {
+        mutateAsync: updateMember,
+        isPending: isUpdatingMember
+    } = useActionMutation<Partial<Member>, TSaveMemberDto>({
+        mutationFn: async (dto: TSaveMemberDto) => {
+            const member = new Member(
+                dto.name,
+                dto.birthDate,
+                dto.plan,
+                dto.cpf,
+                dto.address,
+                dto.city,
+                dto.neighborhood
+            );
+
+            return await _repository.update(id, member);
+        },
+        successMessage: "Aluno atualizado com sucesso!",
+        queryKey: 'members'
+    });
+
+    return {
+        updateMember,
+        isUpdatingMember
     };
 }

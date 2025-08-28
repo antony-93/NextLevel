@@ -1,11 +1,12 @@
 import { cn } from "@/shared/utils/utils";
-import type { TGroupedSession, TSessionGroupedSession } from "../../types/GroupedSessionTypes";
+import type { TGroupedSession } from "../../types/GroupedSessionTypes";
 import SessionCard from "./SessionCard";
+import type Session from "../../domain/entities/Session";
 
 type GroupedSessionCardProps = {
     group: TGroupedSession;
-    onClickEdit: (session: TSessionGroupedSession) => void;
-    onClickMembers: (session: TSessionGroupedSession) => void;
+    onClickEdit: (session: Session) => void;
+    onClickMembers: (session: Session) => void;
     className?: string;
 }
 

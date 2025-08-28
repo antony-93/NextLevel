@@ -11,6 +11,8 @@ import { getLocalTimeZone, parseDate } from "@internationalized/date";
 import PlanTypeCombobox from "../combobox/PlanTypeCombobox";
 import { cn } from "@/shared/utils/utils";
 import { FormContainerButton } from "@/shared/components/Container";
+import type { TMemberFormData } from "../../types/MemberFormDataTypes";
+import { useCallback } from "react";
 
 const formSchema = z.object({
     name: z.string().min(5, { message: "Nome é obrigatório" }),
@@ -25,7 +27,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 type MemberFormProps = {
-    onSubmit: (member: Member) => void;
+    onSubmit: (data: TMemberFormData) => void;
     onClickCancel: () => void;
     member?: Member | null;
     isSaving?: boolean;
@@ -47,22 +49,13 @@ export default function MemberForm({ onSubmit, onClickCancel, member, isSaving, 
         }
     })
 
-    const handleSubmitMember = (data: FormData) => {
-        const member = new Member(
-            data.name,
-            data.birthDate,
-            data.plan,
-            data.cpf,
-            data.address,
-            data.city,
-            data.neighborhood
-        )
-
+    const onSubmitForm = useCallback((data: FormData) => {
+        const member: TMemberFormData = data;
         onSubmit(member);
-    }
+    }, [onSubmit]);
 
     return (
-        <form onSubmit={handleSubmit(handleSubmitMember)}>
+        <form onSubmit={handleSubmit(onSubmitForm)}>
             <div className={cn("flex flex-col", className)}>
                 <div className="flex flex-row gap-2">
                     <User size={24} />

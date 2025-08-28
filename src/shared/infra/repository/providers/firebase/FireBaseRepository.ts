@@ -3,88 +3,52 @@ import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import { ErrorFactory } from "@/shared/utils/errors/ErrorFactory";
 import type { TPaginatedResult } from "@/shared/types/PaginatedResultType";
 import FirebaseProvider from "./FirebaseProvider";
-import type { TServiceResult } from "@/shared/types/ServiceResult";
 import { AppError } from "@/shared/utils/errors/Error";
 import { ErrorCodes } from "@/shared/types/ErrorTypes";
 
-export default class FirebaseRepository<T> implements IRepository<T> {
-    protected _provider: FirebaseProvider<T>;
+export default class FirebaseRepository<Entity> implements IRepository<Entity> {
+    protected _provider: FirebaseProvider<Entity>;
 
     constructor(collectionName: string, filterByUserId: boolean = true) {
-        this._provider = new FirebaseProvider<T>(collectionName, filterByUserId);
+        this._provider = new FirebaseProvider<Entity>(collectionName, filterByUserId);
     }
 
-    async list(queryParams: TQueryParams<T>): Promise<TServiceResult<TPaginatedResult<T>>> {
+    async list(queryParams: TQueryParams<Entity>): Promise<TPaginatedResult<Entity>> {
         try {
             const dataResult = await this._provider.getDocs(queryParams);
 
-            const result: TServiceResult<TPaginatedResult<T>> = {
-                success: true,
-                data: dataResult
-            };
-
-            return result;
+            return dataResult;
         } catch (error) {
-            const formattedError = ErrorFactory.create(error);
-
-            return {
-                success: false,
-                error: formattedError
-            };
+            throw ErrorFactory.create(error);
         }
     }
 
-    async findById(id: string): Promise<TServiceResult<T | null>>{
+    async findById(id: string): Promise<Entity | null>{
         try {
             const dataResult = await this._provider.getDocById(id);
 
             if (!dataResult || Object.keys(dataResult).length === 0) {
-                return {
-                    success: false,
-                    error: new AppError("Nenhum dado encontrado", ErrorCodes.NOT_FOUND_DATA)
-                };
+                throw new AppError("Nenhum dado encontrado", ErrorCodes.NOT_FOUND_DATA);
             }
 
-            const result: TServiceResult<T | null> = {
-                success: true,
-                data: {
-                    ...dataResult,
-                    id
-                } as T
-            };
-
-            return result;
-        } catch (error) {
-            const formattedError = ErrorFactory.create(error);
-
             return {
-                success: false,
-                error: formattedError
-            };
+                ...dataResult,
+                id
+            } as Entity;
+        } catch (error) {
+            throw ErrorFactory.create(error);
         }
     }
 
-    async countRecords(queryParams: TQueryParams<T>): Promise<TServiceResult<number>> {
+    async countRecords(queryParams: TQueryParams<Entity>): Promise<number> {
         try {
-            const dataResult = await this._provider.getCountDocs(queryParams);
-
-            const result: TServiceResult<number> = {
-                success: true,
-                data: dataResult
-            };
-
-            return result;
+            return await this._provider.getCountDocs(queryParams);
         } catch (error) {
-            const formattedError = ErrorFactory.create(error);
-
-            return {
-                success: false,
-                error: formattedError
-            };
+            throw ErrorFactory.create(error);
         }
     }
 
-    async create(data: Omit<T, 'id'>): Promise<T> {
+    async create(data: Omit<Entity, 'id'>): Promise<Entity> {
         try {
             return await this._provider.createDoc(data);
         } catch (error) {
@@ -92,7 +56,7 @@ export default class FirebaseRepository<T> implements IRepository<T> {
         }
     }
 
-    async update(id: string, data: Partial<T>): Promise<Partial<T>> {
+    async update(id: string, data: Partial<Entity>): Promise<Partial<Entity>> {
         try {
             return await this._provider.updateDoc(id, data);
         } catch (error) {

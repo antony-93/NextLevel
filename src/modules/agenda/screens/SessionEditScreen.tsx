@@ -1,12 +1,12 @@
 
 import { useNavigate, useParams } from "react-router-dom";
-import { useSessionQuery, useSessionMutations } from "../hooks/UseSessionApi";
-import Session from "../domain/entities/Session";
+import { useSessionQuery, useUpdateSession } from "../hooks/UseSessionApi";
 import SessionForm from "../components/form/SessionForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { useCallback } from "react";
-import { FormContainer } from "@/shared/components/Container";
-import { toastSuccess } from "@/shared/components/Toast";
+import { FormContainer } from "@/shared/components/Container";  
+import type { TSessionFormData } from "../types/SessionFormDataTypes";
+import type { TSaveSessionDto } from "../domain/dto/SaveSessionDto";
 
 export default function SessionEditScreen() {
     const navigate = useNavigate();
@@ -17,24 +17,29 @@ export default function SessionEditScreen() {
 
     const {
         updateSession,
-        updateSessionLoading
-    } = useSessionMutations();
-
-    const onSubmit = useCallback(async (updatedSession: Session) => {
-        await updateSession({
-            data: { ...updatedSession, id: id! },
-            refetch: true
-        });
-        
-        toastSuccess("Sucesso!", "Aula atualizada com sucesso!");
-
-        navigate("/sessions/agenda");
-    }, [updateSession, navigate, id]);
+        isUpdatingSession
+    } = useUpdateSession(id!);
 
     const {
         session,
         isLoading
     } = useSessionQuery(id!);
+
+    const onSubmit = useCallback(async (sessionData: TSessionFormData) => {
+        const dto: TSaveSessionDto = {
+            description: sessionData.description,
+            sessionType: sessionData.sessionType,
+            status: session!.status,
+            sessionDate: sessionData.sessionDate,
+            sessionHour: sessionData.sessionHour,
+            maxParticipants: sessionData.maxParticipants,
+            allowJoinAfterStart: sessionData.allowJoinAfterStart
+        };
+
+        await updateSession(dto);
+
+        navigate("/sessions/agenda");
+    }, [session]);
 
     return (
         <FormContainer>
@@ -54,7 +59,7 @@ export default function SessionEditScreen() {
                 <SessionForm
                     onSubmit={onSubmit}
                     onClickCancel={() => navigate("/sessions/agenda")}
-                    isSaving={updateSessionLoading}
+                    isSaving={isUpdatingSession}
                     session={session}
                 />
             )}

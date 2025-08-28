@@ -1,24 +1,24 @@
 import { Card, CardContent } from "@/shared/components/card";
-import type SessionParticipants from "../../domain/entities/SessionParticipants";
-import { Button, IconButton } from "@/shared/components/button";
+import type SessionParticipants from "../../domain/entities/SessionMember";
+import { IconButton } from "@/shared/components/button";
 import { Trash2 } from "lucide-react";
 import { useCallback } from "react";
 
-type ParticipantCardProps = {
-    participant: SessionParticipants
-    onClickDelete: (participant: SessionParticipants) => void
+type DeleteSessionMemberCardProps = {
+    sessionMember: SessionParticipants
+    onClickDelete: (id: string) => void
 }
 
-export default function ParticipantCard({ participant, onClickDelete }: ParticipantCardProps) {
+export default function DeleteSessionMemberCard({ sessionMember, onClickDelete }: DeleteSessionMemberCardProps) {
     const handleDelete = useCallback(() => {
-        onClickDelete(participant);
-    }, [onClickDelete, participant]);
+        onClickDelete(sessionMember.id!);
+    }, [onClickDelete, sessionMember]);
 
     return (
         <Card>
             <CardContent className="flex flex-row items-center justify-between">
                 <p className="text-sm font-medium">
-                    {participant.name}
+                    {sessionMember.name}
                 </p>
 
                 <IconButton 

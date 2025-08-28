@@ -1,32 +1,38 @@
 
 import { useNavigate, useParams } from "react-router-dom";
-import { useMember, useMemberMutations } from "../hooks/UseMemberApi";
-import Member from "../domain/entities/Member";
+import { useMember, useUpdateMember } from "../hooks/UseMemberApi";
 import MemberForm from "../components/form/MemberForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { useCallback } from "react";
 import { FormContainer } from "@/shared/components/Container";
+import type { TSaveMemberDto } from "../domain/dto/SaveMemberDto";
+import type { TMemberFormData } from "../types/MemberFormDataTypes";
 
 export default function MemberEditScreen() {
     const navigate = useNavigate();
 
-    const {
-        id
-    } = useParams();
+    const { id } = useParams();
 
     const {
         updateMember,
-        updateMemberLoading
-    } = useMemberMutations();
+        isUpdatingMember
+    } = useUpdateMember(id!);
 
-    const onSubmit = useCallback(async (updatedMember: Member) => {
-        await updateMember({
-            data: { ...updatedMember, id: id! },
-            refetch: true
-        });
+    const onSubmit = useCallback(async (data: TMemberFormData) => {
+        const dto: TSaveMemberDto = {
+            name: data.name,
+            birthDate: data.birthDate,
+            cpf: data.cpf,
+            plan: data.plan,
+            address: data.address,
+            city: data.city,
+            neighborhood: data.neighborhood
+        };
+        
+        await updateMember(dto);
         
         navigate("/members/list");
-    }, [updateMember, navigate, id]);
+    }, [updateMember, navigate]);
 
     const {
         member,
@@ -51,7 +57,7 @@ export default function MemberEditScreen() {
                 <MemberForm
                     onSubmit={onSubmit}
                     onClickCancel={() => navigate("/members/list")}
-                    isSaving={updateMemberLoading}
+                    isSaving={isUpdatingMember}
                     member={member}
                 />
             )}

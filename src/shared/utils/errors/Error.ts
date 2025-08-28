@@ -11,3 +11,10 @@ export class FirestoreError extends AppError {
         this.name = 'FirestoreError';
     }
 }
+
+export class BusinessError extends Error {
+    constructor(public title: string, public message: string) {
+        super(message);
+        this.name = 'BusinessError';
+    }
+}

@@ -4,9 +4,7 @@ import { Calendar, Clock } from "lucide-react";
 import { useSessionContext } from "../../context/UseEditSessionContext";
 import { cn } from "@/shared/utils/utils";
 import { EnumStatusSession } from "../../domain/enums/EnumStatusSession";
-import { useSessionMutations } from "../../hooks/UseSessionApi";
-import { useNavigate } from "react-router-dom";
-import { toastSuccess } from "@/shared/components/Toast";
+import { useCompleteSession } from "../../hooks/UseSessionApi";
 
 type TabDataSessionProps = {
     className?: string;
@@ -16,21 +14,13 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
     const { session } = useSessionContext();
 
     const {
-        updateSession,
-        updateSessionLoading
-    } = useSessionMutations();
+        completeSession,
+        isCompletingSession
+    } = useCompleteSession(session.id!);
 
     const handleFinishSession = async () => {
-        await updateSession({
-            data: {
-                id: session.id!,
-                status: EnumStatusSession.COMPLETED
-            },
-            refetch: true
-        });
-
-        toastSuccess("Sucesso!", "Aula finalizada com sucesso!");
-    }
+        await completeSession();
+    };
 
     return (
         <div className={cn("flex flex-col justify-between py-4", className)}>
@@ -81,9 +71,9 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
                 size="lg"
                 className="w-full"
                 onClick={handleFinishSession}
-                disabled={updateSessionLoading}
+                disabled={isCompletingSession}
                 hidden={session.status === EnumStatusSession.COMPLETED}
-                isLoading={updateSessionLoading}
+                isLoading={isCompletingSession}
             >
                 <p className="text-base font-medium">
                     Finalizar aula

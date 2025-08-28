@@ -1,14 +1,14 @@
 import { Card, CardContent } from "@/shared/components/card";
 import { Clock, Edit, Eye, Users } from "lucide-react";
-import type { TSessionGroupedSession } from "../../types/GroupedSessionTypes";
 import { Badge } from "@/shared/components/badge";
 import { IconButton } from "@/shared/components/button";
 import { useCallback } from "react";
+import type Session from "../../domain/entities/Session";
 
 type SessionCardProps = {
-    session: TSessionGroupedSession;
-    onClickEdit: (session: TSessionGroupedSession) => void;
-    onClickMembers: (session: TSessionGroupedSession) => void;
+    session: Session;
+    onClickEdit: (session: Session) => void;
+    onClickMembers: (session: Session) => void;
 }
 
 export default function SessionCard({ session, onClickEdit, onClickMembers }: SessionCardProps) {
@@ -69,7 +69,7 @@ export default function SessionCard({ session, onClickEdit, onClickMembers }: Se
                         <Users size={24} className="opacity-60" />
 
                         <p className="text-sm mr-2">
-                            {session.participantsCount} / {session.maxParticipants}
+                            {session.sessionMembers.length || 0} / {session.maxParticipants}
                         </p>
 
                         {session.allowJoinAfterStart && (

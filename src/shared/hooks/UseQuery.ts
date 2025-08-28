@@ -4,6 +4,7 @@ import type { TQueryParams, TStartAfterValues } from "../types/QueryParamsTypes"
 import type { TPaginatedResult } from "../types/PaginatedResultType";
 import { useMemo } from "react";
 import { toastError } from "../components/Toast";
+import { ErrorFactory } from "../utils/errors/ErrorFactory";
 
 type TQueryBase<T> = {
     repository: IRepository<T>
@@ -14,20 +15,21 @@ type TQueryBase<T> = {
 export function useQuery<T>(config: TQueryBase<T>) {
     const query = useRQQuery<TPaginatedResult<T>>({
         queryKey: [
-            config.queryKey, 
+            config.queryKey,
             config.queryParams?.filters,
             config.queryParams?.sort,
             config.queryParams?.pageSize
         ],
         queryFn: async () => {
-            const result = await config.repository.list(config.queryParams || {});
+            try {
+                return await config.repository.list(config.queryParams || {});
+            } catch (error) {
+                const appError = ErrorFactory.create(error);
 
-            if (!result.success) {
-                if (result.error) toastError("Erro", result.error.message);
-                throw result.error;
+                toastError("Erro", appError.message);
+
+                throw appError;
             }
-
-            return result.data!;
         },
         retry: false
     })
@@ -38,27 +40,28 @@ export function useQuery<T>(config: TQueryBase<T>) {
 export function useQueryInfinite<T>(config: TQueryBase<T>) {
     const infiniteQuery = useInfiniteRQQuery<TPaginatedResult<T>>({
         queryKey: [
-            config.queryKey, 
+            config.queryKey,
             config.queryParams?.filters,
             config.queryParams?.sort,
             config.queryParams?.pageSize
         ],
         queryFn: async ({ pageParam }) => {
-            const queryParams: TQueryParams<T> = {
-                pageSize: config.queryParams?.pageSize,
-                filters: config.queryParams?.filters,
-                sort: config.queryParams?.sort,
-                startAfterValues: pageParam as TStartAfterValues | undefined
-            };
+            try {
+                const queryParams: TQueryParams<T> = {
+                    pageSize: config.queryParams?.pageSize,
+                    filters: config.queryParams?.filters,
+                    sort: config.queryParams?.sort,
+                    startAfterValues: pageParam as TStartAfterValues | undefined
+                };
+    
+                return await config.repository.list(queryParams);
+            } catch (error) {
+                const appError = ErrorFactory.create(error);
 
-            const result = await config.repository.list(queryParams);
+                toastError("Erro", appError.message);
 
-            if (!result.success) {
-                if (result.error) toastError("Erro", result.error.message);
-                throw result.error;
+                throw appError;
             }
-
-            return result.data!;
         },
         getNextPageParam: (lastPage) => {
             if (!lastPage.hasMore) {
@@ -75,7 +78,7 @@ export function useQueryInfinite<T>(config: TQueryBase<T>) {
 
     const data = useMemo(() => {
         if (!infiniteQuery.data || !('pages' in infiniteQuery.data)) return [];
-        
+
         return infiniteQuery.data.pages.flatMap(page => page.data || []);
     }, [infiniteQuery.data]);
 
@@ -93,14 +96,15 @@ export function useQueryById<T>(config: TQueryById<T>) {
     return useRQQuery({
         queryKey: [config.queryKey, config.id],
         queryFn: async () => {
-            const result = await config.repository.findById(config.id);
+            try {
+                return await config.repository.findById(config.id);
+            } catch (error) {
+                const appError = ErrorFactory.create(error);
 
-            if (!result.success) {
-                if (result.error) toastError("Erro", result.error.message);
-                throw result.error;
+                toastError("Erro", appError.message);
+
+                throw appError;
             }
-
-            return result.data;
         },
         retry: false
     });
@@ -109,19 +113,20 @@ export function useQueryById<T>(config: TQueryById<T>) {
 export function useQueryCount<T>(config: TQueryBase<T>) {
     const query = useRQQuery({
         queryKey: [
-            config.queryKey, 
+            config.queryKey,
             'count',
             config.queryParams?.filters
         ],
         queryFn: async () => {
-            const result = await config.repository.countRecords(config.queryParams || {});
+            try {
+                return await config.repository.countRecords(config.queryParams || {});
+            } catch (error) {
+                const appError = ErrorFactory.create(error);
 
-            if (!result.success) {
-                if (result.error) toastError("Erro", result.error.message);
-                throw result.error;
+                toastError("Erro", appError.message);
+
+                throw appError;
             }
-
-            return result.data;
         },
         retry: false
     });

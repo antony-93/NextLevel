@@ -39,25 +39,10 @@ type SessionDetailsLoaderProps = {
 
 function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
     const {
-        session: sessionData,
+        session,
         isLoading
     } = useSessionQuery(id);
-
-    const session: Session | null = useMemo(() => {
-        if (!sessionData) return null;
-        
-        return new Session(
-            sessionData.description,
-            sessionData.status,
-            sessionData.sessionType,
-            sessionData.sessionDate,
-            sessionData.sessionHour,
-            sessionData.maxParticipants,
-            sessionData.allowJoinAfterStart,
-            sessionData.id,
-        );
-    }, [sessionData]);
-
+    
     if (isLoading) {
         return (
             <Loader2 />

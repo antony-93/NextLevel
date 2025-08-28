@@ -4,15 +4,10 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { AddButton } from "@/shared/components/button";
-import { useInfiniteParticipantsQuery, useParticipantMutations } from "../../hooks/UseParticipantsApi";
 import { useSessionContext } from "../../context/UseEditSessionContext";
-import { toast } from "sonner";
-import SessionParticipants from "../../domain/entities/SessionParticipants";
-import { useCallback } from "react";
-import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
-import DeleteSessionParticipantCard from "../../components/card/DeleteSessionParticipantCard";
-import { toastSuccess, toastWarning } from "@/shared/components/Toast";
-import { useSessionMutations } from "../../hooks/UseSessionApi";
+import type { TInsertMemberSessionDto } from "../../domain/dto/InsertMemberSessionDto";
+import DeleteSessionMemberCard from "../../components/card/DeleteSessionMemberCard";
+import { useInsertMemberSession, useDeleteSessionMember } from "../../hooks/UseSessionApi";
 
 type TabParticipantsProps = {
     className?: string;
@@ -33,73 +28,32 @@ export default function TabParticipants({ className }: TabParticipantsProps) {
     } = useSessionContext();
 
     const {
-        createParticipant,
-        createParticipantLoading,
-        deleteParticipant
-    } = useParticipantMutations();
+        deleteSessionMember,
+    } = useDeleteSessionMember(session);
 
     const { control, handleSubmit, reset, formState: { isValid } } = useForm<AddMemberFormValues>({
         resolver: zodResolver(addMemberSchema)
     });
 
-    const updateSessionParticipantsCount = useCallback(async (participantsCount: number) => {  
-        await updateSession({
-            data: {
-                ...session,
-                participantsCount,
-                id: session.id!
-            }
-        });
-    }, [session]);
+    const {
+        insertMemberSession,
+        isInsertingMemberSession
+    } = useInsertMemberSession(session);
 
+    const onSubmit = async (data: AddMemberFormValues) => {
+        const dto: TInsertMemberSessionDto = {
+            memberId: data.member!.id,
+            name: data.member!.name,
+        };
 
-    const onSubmit = useCallback(async (data: AddMemberFormValues) => {
-        const result = session.canAddParticipant();
-
-        if (!result.success) {
-            return toastWarning('Atenção', result.message);
-        }
-
-        const participant = new SessionParticipants(
-            data.member!.id,
-            session.id!,
-            data.member!.name
-        );
-
-        const participantsCount = participants.length + 1;
-
-        await createParticipant({
-            data: participant
-        });
-
-        updateSessionParticipantsCount(participantsCount);
-
-        toastSuccess('Sucesso!', 'Aluno adicionado com sucesso');
+        await insertMemberSession(dto);
         
         reset();
-    }, [session, updateSessionParticipantsCount]);
+    };
 
-    const {
-        updateSession
-    } = useSessionMutations();
-    
-    const {
-        participants
-    } = useInfiniteParticipantsQuery({
-        filters: [{
-            field: 'sessionId',
-            operator: EnumFilterOperator.Equals,
-            value: session.id!
-        }]
-    });
-
-    const handleDelete = async (participant: SessionParticipants) => {
-        await deleteParticipant({
-            data: participant.id!
-        });
-
-        toast.success('Aluno removido com sucesso');
-    }
+    const handleDelete = async (id: string) => {
+        await deleteSessionMember(id);
+    };
 
     return (
         <div className={cn("flex flex-col justify-between py-4", className)}>
@@ -121,17 +75,18 @@ export default function TabParticipants({ className }: TabParticipantsProps) {
                 <AddButton
                     className="w-full"
                     type="submit"
-                    disabled={createParticipantLoading || !isValid}
+                    controlSize={false}
+                    disabled={!isValid || isInsertingMemberSession}
                 >
                 </AddButton>
             </form>
 
             <div className="flex flex-col gap-4">
                 {
-                    participants.map((participant) => (
-                        <DeleteSessionParticipantCard
-                            key={participant.id}
-                            participant={participant}
+                    session.sessionMembers.map((sessionMember) => (
+                        <DeleteSessionMemberCard
+                            key={sessionMember.id}
+                            sessionMember={sessionMember}
                             onClickDelete={handleDelete}
                         />
                     ))

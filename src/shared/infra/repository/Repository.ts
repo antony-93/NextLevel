@@ -1,30 +1,29 @@
 import type { TQueryParams } from '@/shared/types/QueryParamsTypes';
 import type { IRepository } from '../../interfaces/RepositoryInterface';
 import type { TPaginatedResult } from '../../types/PaginatedResultType';
-import type { TServiceResult } from '../../types/ServiceResult';
 
-export default abstract class Repository<T> implements IRepository<T> {
+export default abstract class Repository<Entity> implements IRepository<Entity> {
     constructor(
-        private readonly _repositoryProvider: IRepository<T>
+        private readonly _repositoryProvider: IRepository<Entity>
     ) {}
 
-    async list(queryParams: TQueryParams<T>): Promise<TServiceResult<TPaginatedResult<T>>> {
+    async list(queryParams: TQueryParams<Entity>): Promise<TPaginatedResult<Entity>> {
         return this._repositoryProvider.list(queryParams);
     }
 
-    async findById(id: string): Promise<TServiceResult<T | null>> {
+    async findById(id: string): Promise<Entity | null> {
         return this._repositoryProvider.findById(id);
     }
 
-    async countRecords(queryParams: TQueryParams<T>): Promise<TServiceResult<number>> {
+    async countRecords(queryParams: TQueryParams<Entity>): Promise<number> {
         return this._repositoryProvider.countRecords(queryParams);
     }
 
-    async create(data: Omit<T, 'id'>): Promise<T> {
+    async create(data: Entity): Promise<Entity> {
         return this._repositoryProvider.create(data);
     }
 
-    async update(id: string, data: Partial<T>): Promise<Partial<T>> {
+    async update(id: string, data: Partial<Entity>): Promise<Partial<Entity>> {
         return this._repositoryProvider.update(id, data);
     }
 

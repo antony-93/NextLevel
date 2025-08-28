@@ -7,6 +7,5 @@ export enum ErrorCodes {
     NETWORK_ERROR = 'network/connection-failed',
     GENERIC_ERROR = 'general/unknown-error',
     VALIDATION_ERROR = 'input/validation-failed',
-    NOT_FOUND_DATA = 'data/not-found',
-    BUSINESS_ERROR = 'business/error'
+    NOT_FOUND_DATA = 'data/not-found'
 };
