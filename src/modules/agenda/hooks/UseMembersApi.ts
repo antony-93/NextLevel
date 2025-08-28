@@ -13,7 +13,6 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
         pageSize,
         setPageSize,
     } = useQueryParams<Member>(params, {
-        pageSize: 5,
         sort: [{
             field: 'name',
             direction: 'asc'

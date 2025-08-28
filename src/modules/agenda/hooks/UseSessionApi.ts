@@ -13,9 +13,7 @@ export function useInfiniteSessionsQuery(params?: TQueryParams<Session>) {
         setSort,
         pageSize,
         setPageSize,
-    } = useQueryParams<Session>(params, {
-        pageSize: 5
-    });
+    } = useQueryParams<Session>(params);
 
     const {
         data,

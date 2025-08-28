@@ -1,4 +1,4 @@
-import { useQuery, useQueryCount, useQueryInfinite } from "@/shared/hooks/UseQuery";
+import { useQueryInfinite } from "@/shared/hooks/UseQuery";
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
 import ParticipantRepository from "../repository/ParticipantRepository";
@@ -14,7 +14,6 @@ export function useInfiniteParticipantsQuery(params?: TQueryParams<SessionPartic
         pageSize,
         setPageSize,
     } = useQueryParams<SessionParticipants>(params, {
-        pageSize: 5,
         sort: [{
             field: 'name',
             direction: 'asc'

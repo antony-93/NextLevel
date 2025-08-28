@@ -3,8 +3,7 @@ import type { IRepository } from "../interfaces/RepositoryInterface";
 import type { TQueryParams, TStartAfterValues } from "../types/QueryParamsTypes";
 import type { TPaginatedResult } from "../types/PaginatedResultType";
 import { useMemo } from "react";
-import { toastError, toastSuccess, toastWarning } from "../components/Toast";
-import type { TServiceResult } from "../types/ServiceResult";
+import { toastError } from "../components/Toast";
 
 type TQueryBase<T> = {
     repository: IRepository<T>

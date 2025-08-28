@@ -15,7 +15,7 @@ export function useQueryParams<T>(params?: TQueryParams<T>, defaultParams?: TQue
     const [
         pageSize, 
         setPageSize
-    ] = useState<number>(params?.pageSize || defaultParams?.pageSize || 50);
+    ] = useState<number>(params?.pageSize || defaultParams?.pageSize || 25);
 
     return {
         filters,
