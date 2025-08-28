@@ -1,4 +1,4 @@
-import { useInfiniteSessions } from "./UseSession";
+import { useInfiniteSessionsQuery } from "./UseSessionApi";
 import { useMemo } from "react";
 import type { TGroupedSession, TSessionGroupedSession } from "../types/GroupedSessionTypes";
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
@@ -15,7 +15,7 @@ export function useGroupedSessionByDate(queryParams: TQueryParams<Session>) {
         fetchNextPage,
         hasNextPage,
         pageSize
-    } = useInfiniteSessions(queryParams);
+    } = useInfiniteSessionsQuery(queryParams);
 
     const groupedSessions = useMemo<TGroupedSession[]>(() => {
         const groups: TGroupedSession[] = [];

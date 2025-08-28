@@ -1,11 +1,12 @@
 import { Button } from "@/shared/components/button";
 import { Card, CardContent } from "@/shared/components/card";
-import { Calendar, Clock, Loader2 } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { useSessionContext } from "../../context/UseEditSessionContext";
 import { cn } from "@/shared/utils/utils";
 import { EnumStatusSession } from "../../domain/enums/EnumStatusSession";
-import { useSessionMutations } from "../../hooks/UseSession";
+import { useSessionMutations } from "../../hooks/UseSessionApi";
 import { useNavigate } from "react-router-dom";
+import { toastSuccess } from "@/shared/components/Toast";
 
 type TabDataSessionProps = {
     className?: string;
@@ -13,7 +14,6 @@ type TabDataSessionProps = {
 
 export default function TabDataSession({ className }: TabDataSessionProps) {
     const { session } = useSessionContext();
-    const navigate = useNavigate();
 
     const {
         updateSession,
@@ -29,7 +29,7 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
             refetch: true
         });
 
-        navigate("/sessions/agenda");
+        toastSuccess("Sucesso!", "Aula finalizada com sucesso!");
     }
 
     return (
@@ -83,8 +83,8 @@ export default function TabDataSession({ className }: TabDataSessionProps) {
                 onClick={handleFinishSession}
                 disabled={updateSessionLoading}
                 hidden={session.status === EnumStatusSession.COMPLETED}
+                isLoading={updateSessionLoading}
             >
-                {updateSessionLoading && <Loader2 />}
                 <p className="text-base font-medium">
                     Finalizar aula
                 </p>

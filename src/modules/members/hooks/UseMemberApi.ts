@@ -4,7 +4,6 @@ import MemberRepository from "../repository/MemberRepository";
 import { useQueryById, useQueryInfinite } from "@/shared/hooks/UseQuery";
 import { useMutation } from "@/shared/hooks/UseMutation";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
-import { useMemo } from "react";
 
 export function useInfiniteMembers(params?: TQueryParams<Member>) {
     const {
@@ -40,13 +39,8 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
         }
     });
 
-    const members = useMemo(() => {
-        if (!data || !('pages' in data)) return [];
-        return data.pages.flatMap(page => page.data);
-    }, [data]);
-
     return {
-        members,
+        members: data,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
@@ -86,9 +80,7 @@ export function useMemberMutations() {
     const {
         createMutation,
         updateMutation,
-        updateManyMutation,
         deleteMutation,
-        deleteManyMutation
     } = useMutation({
         repository: new MemberRepository(),
         queryKey: 'members'
@@ -99,11 +91,7 @@ export function useMemberMutations() {
         createMemberLoading: createMutation.isPending,
         updateMember: updateMutation.mutateAsync,
         updateMemberLoading: updateMutation.isPending,
-        updateManyMembers: updateManyMutation.mutateAsync,
-        updateManyMembersLoading: updateManyMutation.isPending,
         deleteMember: deleteMutation.mutateAsync,
-        deleteMemberLoading: deleteMutation.isPending,
-        deleteManyMembers: deleteManyMutation.mutateAsync,
-        deleteManyMembersLoading: deleteManyMutation.isPending
+        deleteMemberLoading: deleteMutation.isPending
     };
 }

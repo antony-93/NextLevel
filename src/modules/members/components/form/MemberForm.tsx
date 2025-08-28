@@ -1,6 +1,6 @@
-import { Button } from "@/shared/components/button";
+import { CancelButton, SaveButton } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
-import { CreditCard, Loader2, MapPin, Save, User, X } from "lucide-react";
+import { CreditCard, MapPin, User } from "lucide-react";
 import { z } from "zod";
 import { EnumPlanType } from "../../domain/enums/EnumPlanType";
 import { Controller, useForm } from "react-hook-form";
@@ -10,7 +10,7 @@ import DateField from "@/shared/components/datafield";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
 import PlanTypeCombobox from "../combobox/PlanTypeCombobox";
 import { cn } from "@/shared/utils/utils";
-import { Suspense } from "react";
+import { FormContainerButton } from "@/shared/components/Container";
 
 const formSchema = z.object({
     name: z.string().min(5, { message: "Nome é obrigatório" }),
@@ -62,29 +62,26 @@ export default function MemberForm({ onSubmit, onClickCancel, member, isSaving, 
     }
 
     return (
-        <Suspense
-            fallback={
-                <div>Carregando...</div>
-            }            
-        >
-            <form onSubmit={handleSubmit(handleSubmitMember)}>
-                <div className={cn("flex flex-col", className)}>
-                    <div className="flex flex-row gap-2">
-                        <User size={24} />
-                        <p>Informações pessoais</p>
-                    </div>
+        <form onSubmit={handleSubmit(handleSubmitMember)}>
+            <div className={cn("flex flex-col", className)}>
+                <div className="flex flex-row gap-2">
+                    <User size={24} />
+                    <p>Informações pessoais</p>
+                </div>
 
-                    <hr className="my-4" />
+                <hr className="my-4" />
 
-                    <div className="flex flex-col gap-3 mb-6">
-                        <Input
-                            {...register("name")}
-                            label="Nome"
-                            placeholder="Digite o nome do aluno"
-                            required
-                            error={errors.name?.message}
-                        />
+                <div className="flex flex-col mb-6">
+                    <Input
+                        {...register("name")}
+                        label="Nome"
+                        placeholder="Digite o nome do aluno"
+                        className="mb-3"
+                        required
+                        error={errors.name?.message}
+                    />
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <Controller
                             control={control}
                             name="birthDate"
@@ -106,46 +103,41 @@ export default function MemberForm({ onSubmit, onClickCancel, member, isSaving, 
                             placeholder="Digite o CPF do aluno"
                         />
                     </div>
+                </div>
 
-                    <div className="flex flex-row gap-2">
-                        <CreditCard size={24} />
-                        <p>Plano</p>
-                    </div>
+                <div className="flex flex-row gap-2">
+                    <CreditCard size={24} />
+                    <p>Plano</p>
+                </div>
 
-                    <hr className="my-4" />
+                <hr className="my-4" />
 
-                    <div className="flex flex-col gap-3 mb-6">
-                        <Controller
-                            control={control}
-                            name="plan"
-                            render={({ field }) => (
-                                <PlanTypeCombobox
-                                    {...field}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    label="Plano"
-                                    required
-                                    error={errors.plan?.message}
-                                />
-                            )}
-                        />
-                    </div>
+                <div className="flex flex-col gap-3 mb-6">
+                    <Controller
+                        control={control}
+                        name="plan"
+                        render={({ field }) => (
+                            <PlanTypeCombobox
+                                {...field}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                label="Plano"
+                                required
+                                error={errors.plan?.message}
+                            />
+                        )}
+                    />
+                </div>
 
-                    <div className="flex flex-row gap-2">
-                        <MapPin size={24} />
-                        <p>Endereço</p>
-                    </div>
+                <div className="flex flex-row gap-2">
+                    <MapPin size={24} />
+                    <p>Endereço</p>
+                </div>
 
-                    <hr className="my-4" />
+                <hr className="my-4" />
 
-                    <div className="flex flex-col gap-3 mb-6">
-                        <Input
-                            {...register("address")}
-                            label="Endereço"
-                            placeholder="Digite o endereço do aluno"
-                            error={errors.address?.message}
-                        />
-
+                <div className="flex flex-col mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <Input
                             {...register("city")}
                             label="Cidade"
@@ -161,29 +153,27 @@ export default function MemberForm({ onSubmit, onClickCancel, member, isSaving, 
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <Button
-                            type="submit"
-                            size="lg"
-                            className="w-full"
-                            disabled={isSaving}
-                        >
-                            {isSaving ? <Loader2 size={16} /> : <Save size={16} />}
-                            Salvar
-                        </Button>
-
-                        <Button
-                            variant="outline"
-                            size="lg"
-                            className="w-full"
-                            onClick={onClickCancel}
-                        >
-                            <X size={16} />
-                            Cancelar
-                        </Button>
-                    </div>
+                    <Input
+                        {...register("address")}
+                        label="Endereço"
+                        placeholder="Digite o endereço do aluno"
+                        error={errors.address?.message}
+                    />
                 </div>
-            </form>
-        </Suspense>
+
+                <FormContainerButton>
+                    <SaveButton
+                        className="md:mr-2 md:mb-0 mb-2"
+                        type="submit"
+                        disabled={isSaving}
+                        isLoading={isSaving}
+                    />
+
+                    <CancelButton
+                        onClick={onClickCancel}
+                    />
+                </FormContainerButton>
+            </div>
+        </form>
     )
 }

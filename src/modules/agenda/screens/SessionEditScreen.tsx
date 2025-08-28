@@ -1,12 +1,12 @@
 
 import { useNavigate, useParams } from "react-router-dom";
-import { useSession, useSessionMutations } from "../hooks/UseSession";
+import { useSessionQuery, useSessionMutations } from "../hooks/UseSessionApi";
 import Session from "../domain/entities/Session";
 import SessionForm from "../components/form/SessionForm";
-import { Button } from "@/shared/components/button";
-import { X } from "lucide-react";
+import { IconCloseButton } from "@/shared/components/button";
 import { useCallback } from "react";
-import { de } from "date-fns/locale";
+import { FormContainer } from "@/shared/components/Container";
+import { toastSuccess } from "@/shared/components/Toast";
 
 export default function SessionEditScreen() {
     const navigate = useNavigate();
@@ -26,28 +26,26 @@ export default function SessionEditScreen() {
             refetch: true
         });
         
+        toastSuccess("Sucesso!", "Aula atualizada com sucesso!");
+
         navigate("/sessions/agenda");
     }, [updateSession, navigate, id]);
 
     const {
         session,
         isLoading
-    } = useSession(id!);
+    } = useSessionQuery(id!);
 
     return (
-        <div className="flex-1 flex flex-col p-4">
+        <FormContainer>
             <div className="flex flex-row justify-between items-center mb-8">
                 <p className="text-3xl font-bold">
                     Editar aula
                 </p>
 
-                <Button
-                    variant="outline"
-                    className="aspect-square"
+                <IconCloseButton
                     onClick={() => navigate("/sessions/agenda")}
-                >
-                    <X className="opacity-60" size={16} aria-hidden="true" />
-                </Button>
+                />
             </div>
 
             {isLoading ? (
@@ -60,6 +58,6 @@ export default function SessionEditScreen() {
                     session={session}
                 />
             )}
-        </div>
+        </FormContainer>
     );
 }

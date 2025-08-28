@@ -1,5 +1,7 @@
 import { useMutation as useRQMutation, useQueryClient } from "@tanstack/react-query";
 import type { TMutation } from "../types/MutationTypes";
+import { toastError } from "../components/Toast";
+import type { AppError } from "../utils/errors/Error";
 
 type TParamsMutation<T> = {
     data: T
@@ -23,8 +25,8 @@ export function useMutation<T>(config: TMutation<T>) {
             queryClient[action]({ queryKey: [config.queryKey, 'count'] });
         },
 
-        onError: (error: Error) => {
-            console.error('err', error);
+        onError: (error: AppError) => {
+            toastError("Erro", error.message);
         }
     });
 
@@ -41,27 +43,8 @@ export function useMutation<T>(config: TMutation<T>) {
             queryClient[action]({ queryKey: [config.queryKey, 'count'] });
         },
 
-        onError: (error: Error) => {
-            console.error(error);
-        }
-    });
-
-    const updateManyMutation = useRQMutation({
-        mutationFn: async (params: TParamsMutation<Array<Partial<T> & { id: string }>>): Promise<Partial<T>[]> => {
-            const dataFormated = params.data.map(i => ({ id: i.id, data: i }));
-            
-            return await config.repository.updateMany(dataFormated);
-        },
-
-        onSuccess: (_data: Partial<T>[], params: TParamsMutation<Array<Partial<T> & { id: string }>>) => {
-            const action = params.refetch ? 'refetchQueries' : 'invalidateQueries';
-
-            queryClient[action]({ queryKey: [config.queryKey] });
-            queryClient[action]({ queryKey: [config.queryKey, 'count'] });
-        },
-
-        onError: (error: Error) => {
-            console.error(error);
+        onError: (error: AppError) => {
+            toastError("Erro", error.message);
         }
     });
 
@@ -79,35 +62,15 @@ export function useMutation<T>(config: TMutation<T>) {
             queryClient[action]({ queryKey: [config.queryKey, 'count'] });
         },
 
-        onError: (error: Error) => {
-            console.error(error);
+        onError: (error: AppError) => {
+            toastError("Erro", error.message);
         }
     });
 
-    const deleteManyMutation = useRQMutation({
-        mutationFn: async ({ data: ids }: TParamsMutation<string[]>): Promise<string[]> => {
-            await config.repository.deleteMany(ids);
-
-            return ids;
-        },
-
-        onSuccess: (_data: string[], params: TParamsMutation<string[]>) => {
-            const action = params.refetch ? 'refetchQueries' : 'invalidateQueries';
-
-            queryClient[action]({ queryKey: [config.queryKey] });
-            queryClient[action]({ queryKey: [config.queryKey, 'count'] });
-        },
-
-        onError: (error: Error) => {
-            console.error(error);
-        }
-    });
 
     return {
         createMutation,
         updateMutation,
-        updateManyMutation,
         deleteMutation,
-        deleteManyMutation
     }
 }

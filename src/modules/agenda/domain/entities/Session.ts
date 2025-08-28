@@ -1,7 +1,6 @@
 import type { EnumSessionType } from "../enums/EnumSessionType";
 import { EnumStatusSession } from "../enums/EnumStatusSession";
 import type { TDomainResult } from "../types/DomainResultTypes";
-import type SessionParticipants from "./SessionParticipants";
 
 export default class Session {
     constructor(
@@ -13,9 +12,10 @@ export default class Session {
         public maxParticipants: number,
         public allowJoinAfterStart: boolean,
         public id?: string,
+        public participantsCount?: number,
     ) { }
 
-    canAddParticipant(quantParticipants: number): TDomainResult {
+    canAddParticipant(): TDomainResult {
         if (this.status === EnumStatusSession.COMPLETED) {
             return {
                 success: false,
@@ -23,7 +23,7 @@ export default class Session {
             }
         }
 
-        if (quantParticipants >= this.maxParticipants) {
+        if (this.participantsCount && this.participantsCount >= this.maxParticipants) {
             return {
                 success: false,
                 message: 'Máximo de participantes atingido'
@@ -38,7 +38,8 @@ export default class Session {
         }
 
         return {
-            success: true
+            success: true,
+            message: 'Inscrição realizada com sucesso'
         }
     }
 }

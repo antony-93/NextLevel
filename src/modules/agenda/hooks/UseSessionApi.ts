@@ -4,9 +4,8 @@ import SessionRepository from "../repository/SessionRepository";
 import type Session from "../domain/entities/Session";
 import { useMutation } from "@/shared/hooks/UseMutation";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
-import { useMemo } from "react";
 
-export function useInfiniteSessions(params?: TQueryParams<Session>) {
+export function useInfiniteSessionsQuery(params?: TQueryParams<Session>) {
     const {
         filters,
         setFilters,
@@ -36,13 +35,8 @@ export function useInfiniteSessions(params?: TQueryParams<Session>) {
         }
     });
 
-    const sessions = useMemo(() => {
-        if (!data || !('pages' in data)) return [];
-        return data.pages.flatMap(page => page.data);
-    }, [data]);
-
     return {
-        sessions,
+        sessions: data,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
@@ -58,7 +52,7 @@ export function useInfiniteSessions(params?: TQueryParams<Session>) {
     };
 }
 
-export function useSession(id: string) {
+export function useSessionQuery(id: string) {
     const {
         data: session,
         isLoading,
@@ -82,9 +76,7 @@ export function useSessionMutations() {
     const { 
         createMutation, 
         updateMutation,
-        updateManyMutation,
         deleteMutation,
-        deleteManyMutation
     } = useMutation({
         repository: new SessionRepository(),
         queryKey: 'sessions'
@@ -95,11 +87,7 @@ export function useSessionMutations() {
         createSessionLoading: createMutation.isPending,
         updateSession: updateMutation.mutateAsync,
         updateSessionLoading: updateMutation.isPending,
-        updateManySessions: updateManyMutation.mutateAsync,
-        updateManySessionsLoading: updateManyMutation.isPending,
         deleteSession: deleteMutation.mutateAsync,
-        deleteSessionLoading: deleteMutation.isPending,
-        deleteManySessions: deleteManyMutation.mutateAsync,
-        deleteManySessionsLoading: deleteManyMutation.isPending
+        deleteSessionLoading: deleteMutation.isPending
     };
 }

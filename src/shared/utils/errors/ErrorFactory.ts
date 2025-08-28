@@ -1,22 +1,13 @@
-import { ErrorCodes } from "@/shared/types/ErrorTypes";
 import { FirebaseError } from "firebase/app";
-
-export class AppError extends Error {
-    constructor(message: string, public code: string, public originalError?: Error) {
-        super(message);
-        this.name = 'AppError';
-    }
-}
-
-export class FirestoreError extends AppError {
-    constructor(message: string, code: string, originalError?: Error) {
-        super(message, code, originalError);
-        this.name = 'FirestoreError';
-    }
-}
+import { AppError, FirestoreError } from "./Error";
+import { ErrorCodes } from "@/shared/types/ErrorTypes";
 
 export class ErrorFactory {
     static create(error: any): AppError {
+        if (error instanceof AppError) {
+            return error;
+        }
+
         if (error instanceof FirebaseError) {
             return this.mapFirebaseError(error);
         }

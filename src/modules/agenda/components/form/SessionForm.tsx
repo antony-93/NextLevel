@@ -1,4 +1,4 @@
-import { Button } from "@/shared/components/button";
+import { Button, CancelButton, SaveButton } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Clipboard, Loader2, Save, Users, X } from "lucide-react";
 import { z } from "zod";
@@ -13,6 +13,7 @@ import { getLocalTimeZone, parseDate } from "@internationalized/date";
 import DateField from "@/shared/components/datafield";
 import HourField from "@/shared/components/hourfield";
 import Checkbox from "@/shared/components/checkbox";
+import { FormContainerButton } from "@/shared/components/Container";
 
 const formSchema = z.object({
     description: z.string().min(1, { message: "Descrição é obrigatória" }),
@@ -22,13 +23,13 @@ const formSchema = z.object({
         .refine(date => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             const sessionDate = new Date(date);
             sessionDate.setHours(0, 0, 0, 0);
-            
+
             return sessionDate >= today;
-        }, { 
-            message: "Data da aula deve ser maior que a data atual" 
+        }, {
+            message: "Data da aula deve ser maior que a data atual"
         }),
     sessionHour: z.string().min(5, { message: "Hora da aula é obrigatória" }),
     maxParticipants: z.number().int().min(1, { message: "Máximo de participantes é obrigatório" }),
@@ -112,28 +113,30 @@ export default function SessionForm({ onSubmit, onClickCancel, session, isSaving
                         )}
                     />
 
-                    <Controller
-                        control={control}
-                        name="sessionDate"
-                        render={({ field }) => (
-                            <DateField
-                                {...field}
-                                value={field.value ? parseDate(field.value.toISOString().slice(0, 10)) : undefined}
-                                onChange={(date) => field.onChange(date ? new Date(date.toDate(getLocalTimeZone())) : undefined)}
-                                label="Data da aula"
-                                required
-                                error={errors.sessionDate?.message}
-                            />
-                        )}
-                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <Controller
+                            control={control}
+                            name="sessionDate"
+                            render={({ field }) => (
+                                <DateField
+                                    {...field}
+                                    value={field.value ? parseDate(field.value.toISOString().slice(0, 10)) : undefined}
+                                    onChange={(date) => field.onChange(date ? new Date(date.toDate(getLocalTimeZone())) : undefined)}
+                                    label="Data da aula"
+                                    required
+                                    error={errors.sessionDate?.message}
+                                />
+                            )}
+                        />
 
-                    <HourField
-                        {...register("sessionHour")}
-                        label="Hora da aula"
-                        placeholder="--:--"
-                        required
-                        error={errors.sessionHour?.message}
-                    />
+                        <HourField
+                            {...register("sessionHour")}
+                            label="Hora da aula"
+                            placeholder="--:--"
+                            required
+                            error={errors.sessionHour?.message}
+                        />
+                    </div>
                 </div>
 
                 <div className="flex flex-row gap-2">
@@ -176,28 +179,18 @@ export default function SessionForm({ onSubmit, onClickCancel, session, isSaving
                     />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    <Button
+                <FormContainerButton>
+                    <SaveButton
+                        className="md:mr-2 md:mb-0 mb-2"
                         type="submit"
-                        size="lg"
-                        className="w-full"
                         disabled={isSaving}
-                        onClick={handleSubmit(handleSubmitMember)}
-                    >
-                        {isSaving ? <Loader2 size={16} /> : <Save size={16} />}
-                        Salvar
-                    </Button>
+                        isLoading={isSaving}
+                    />
 
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        className="w-full"
+                    <CancelButton
                         onClick={onClickCancel}
-                    >
-                        <X size={16} />
-                        Cancelar
-                    </Button>
-                </div>
+                    />
+                </FormContainerButton>
             </div>
         </form>
     )

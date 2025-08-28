@@ -1,13 +1,11 @@
-import { useQueryCount, useQueryInfinite } from "@/shared/hooks/UseQuery";
+import { useQuery, useQueryCount, useQueryInfinite } from "@/shared/hooks/UseQuery";
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
-import { useMemo } from "react";
 import ParticipantRepository from "../repository/ParticipantRepository";
 import { useMutation } from "@/shared/hooks/UseMutation";
 import type SessionParticipants from "../domain/entities/SessionParticipants";
-import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 
-export function useInfiniteParticipants(params?: TQueryParams<SessionParticipants>) {
+export function useInfiniteParticipantsQuery(params?: TQueryParams<SessionParticipants>) {
     const {
         filters,
         setFilters,
@@ -41,13 +39,8 @@ export function useInfiniteParticipants(params?: TQueryParams<SessionParticipant
         }
     });
 
-    const participants = useMemo(() => {
-        if (!data || !('pages' in data)) return [];
-        return data.pages.flatMap(page => page.data);
-    }, [data]);
-
     return {
-        participants,
+        participants: data,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
@@ -67,9 +60,7 @@ export function useParticipantMutations() {
     const { 
         createMutation, 
         updateMutation,
-        updateManyMutation,
         deleteMutation,
-        deleteManyMutation
     } = useMutation({
         repository: new ParticipantRepository(),
         queryKey: 'sessionParticipants'
@@ -80,37 +71,7 @@ export function useParticipantMutations() {
         createParticipantLoading: createMutation.isPending,
         updateParticipant: updateMutation.mutateAsync,
         updateParticipantLoading: updateMutation.isPending,
-        updateManyParticipants: updateManyMutation.mutateAsync,
-        updateManyParticipantsLoading: updateManyMutation.isPending,
         deleteParticipant: deleteMutation.mutateAsync,
-        deleteParticipantLoading: deleteMutation.isPending,
-        deleteManyParticipants: deleteManyMutation.mutateAsync,
-        deleteManyParticipantsLoading: deleteManyMutation.isPending
-    };
-}
-
-export function useCountParticipants(queryParams: TQueryParams<SessionParticipants>) {
-    const {
-        filters
-    } = useQueryParams<SessionParticipants>(queryParams);
-
-    const {
-        data,
-        isLoading,
-        isError,
-        error
-    } = useQueryCount({
-        repository: new ParticipantRepository(),
-        queryKey: 'sessionParticipants',
-        queryParams: {
-            filters: filters
-        }
-    });
-
-    return {
-        count: data,
-        isLoading,
-        isError,
-        error
+        deleteParticipantLoading: deleteMutation.isPending
     };
 }

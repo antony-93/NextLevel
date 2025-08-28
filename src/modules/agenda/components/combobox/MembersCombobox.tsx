@@ -1,5 +1,5 @@
 import Select from "@/shared/components/select";
-import { useInfiniteMembers } from "../../hooks/UseMember";
+import { useInfiniteMembers } from "../../hooks/UseMembersApi";
 import { SelectItem } from "@/shared/components/ui/select";
 import { useEffect, useRef } from "react";
 import { useDebouncedCallback } from "@/shared/hooks/UseDebounce";

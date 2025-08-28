@@ -7,9 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select"
-import { Input } from "./ui/input";
 import { Loader2 } from "lucide-react";
 import { cn } from "../utils/utils";
+import { SearchInput } from "./input";
 
 type SelectProps = React.ComponentProps<typeof UISelect> & {
   label: string;
@@ -22,44 +22,41 @@ type SelectProps = React.ComponentProps<typeof UISelect> & {
   isLoadingNextPage?: boolean;
 }
 
-export default function Select({ 
-  label, 
-  required, 
-  children, 
-  placeholder = 'Selecionar', 
-  error, 
+export default function Select({
+  label,
+  required,
+  children,
+  placeholder = 'Selecionar',
+  error,
   onSearch,
   searchPlaceholder = "Pesquisar",
   isLoadingList = false,
   isLoadingNextPage = false,
   className,
-  ...props 
+  ...props
 }: SelectProps) {
   const id = useId()
   return (
     <div className={cn("*:not-first:mt-2", className)}>
       {label && <Label htmlFor={id}>{label}{required && <span className="text-destructive">*</span>}</Label>}
 
-      <UISelect  
+      <UISelect
         {...props}
         aria-invalid={!!error}
       >
-        <SelectTrigger 
+        <SelectTrigger
           id={id}
           className={error ? "border-destructive ring-destructive/20 ring-2" : ""}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        
+
         <SelectContent>
           {onSearch && (
-            <Input 
-              placeholder={searchPlaceholder} 
-              onChange={(e) => onSearch(e.target.value)} 
-              className="mb-2"  
-              onKeyDown={(e) => {
-                e.stopPropagation();
-              }}
+            <SearchInput
+              placeholder={searchPlaceholder}
+              className="mb-2"
+              onChange={onSearch}
             />
           )}
           {isLoadingList ? (

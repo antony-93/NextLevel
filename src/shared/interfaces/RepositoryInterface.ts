@@ -1,20 +1,17 @@
 import type { TQueryParams } from "@/shared/types/QueryParamsTypes";
 import type { TPaginatedResult } from "../types/PaginatedResultType";
+import type { TServiceResult } from "../types/ServiceResult";
 
 export interface IRepository<T> {
-    get(queryParams: TQueryParams<T>): Promise<TPaginatedResult<T>>;
+    list(queryParams: TQueryParams<T>): Promise<TServiceResult<TPaginatedResult<T>>>;
 
-    getById(id: string): Promise<T | null>;
+    findById(id: string): Promise<TServiceResult<T | null>>;
     
-    getCount(queryParams: TQueryParams<T>): Promise<number>;
+    countRecords(queryParams: TQueryParams<T>): Promise<TServiceResult<number>>;
     
     create(data: Omit<T, 'id'>): Promise<T>;
     
     update(id: string, data: Partial<T>): Promise<Partial<T>>;
     
-    updateMany(updates: Array<{ id: string, data: Partial<T> }>): Promise<Partial<T>[]>;
-    
     delete(id: string): Promise<void>;
-    
-    deleteMany(ids: string[]): Promise<void>;
 }

@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/shared/components/card";
-import { Button } from "@/shared/components/button";
+import { Button, IconButton } from "@/shared/components/button";
 import { Badge } from "@/shared/components/badge";
 import { Calendar, CreditCard, Edit, MapPin } from "lucide-react";
 import type Member from "../../domain/entities/Member";
@@ -32,9 +32,10 @@ export default function MemberCard({ member, onClickEdit, className }: MemberCar
                             {member.name}
                         </p>
 
-                        <Button variant="ghost" size="icon" onClick={handleEdit}>
-                            <Edit size={24} />
-                        </Button>
+                        <IconButton 
+                            icon={<Edit size={16} />} 
+                            onClick={handleEdit} 
+                        />
                     </div>
 
                     <Badge variant="outline" className="rounded">

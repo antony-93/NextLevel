@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useMemberMutations } from "../hooks/UseMember";
+import { useMemberMutations } from "../hooks/UseMemberApi";
 import Member from "../domain/entities/Member";
 import MemberForm from "../components/form/MemberForm";
-import { Button } from "@/shared/components/ui/button";
-import { X } from "lucide-react";
+import { IconCloseButton } from "@/shared/components/button";
+import { FormContainer } from "@/shared/components/Container";
 
 
 export default function MemberCreateScreen() {
@@ -20,19 +20,15 @@ export default function MemberCreateScreen() {
     }
 
     return (
-        <div className="min-h-screen p-4">
+        <FormContainer>
             <div className="flex flex-row justify-between items-center mb-8">
                 <p className="text-3xl font-bold">
                     Novo aluno
                 </p>
 
-                <Button
-                    variant="outline"
-                    className="aspect-square"
+                <IconCloseButton
                     onClick={() => navigate("/members/list")}
-                >
-                    <X className="opacity-60" size={16} aria-hidden="true" />
-                </Button>
+                />
             </div>
 
             <MemberForm
@@ -40,6 +36,6 @@ export default function MemberCreateScreen() {
                 onClickCancel={() => navigate("/members")}
                 isSaving={createMemberLoading}
             />
-        </div>
+        </FormContainer>
     );
 }

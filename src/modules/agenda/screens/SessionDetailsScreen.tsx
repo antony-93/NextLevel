@@ -1,13 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabTrigger } from "@/shared/components/tabs";
-import { Button } from "@/shared/components/ui/button";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import TabDataSession from "./tabs/TabDataSession";
 import TabParticipants from "./tabs/TabParticipants";
 import { SessionContextProvider } from "../context/UseEditSessionContext";
-import { useSession } from "../hooks/UseSession";
+import { useSessionQuery } from "../hooks/UseSessionApi";
 import Session from "../domain/entities/Session";
 import { useMemo } from "react";
+import { IconCloseButton } from "@/shared/components/button";
 
 export default function SessionDetailsScreen() {
     const navigate = useNavigate();
@@ -15,15 +15,15 @@ export default function SessionDetailsScreen() {
     const { id } = useParams();
 
     return (
-        <div className="flex-1 p-4 flex flex-col">
+        <div className="p-4 flex flex-col h-full">
             <div className="flex flex-row items-center mb-8 justify-between">
                 <p className="text-3xl font-bold">
                     Detalhes da sessão
                 </p>
 
-                <Button variant="outline" size="icon" onClick={() => navigate("/sessions")}>
-                    <X size={24} />
-                </Button>
+                <IconCloseButton
+                    onClick={() => navigate("/sessions")}
+                />
             </div>
 
             <div className="flex flex-col gap-4 flex-1 w-full">
@@ -41,7 +41,7 @@ function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
     const {
         session: sessionData,
         isLoading
-    } = useSession(id);
+    } = useSessionQuery(id);
 
     const session: Session | null = useMemo(() => {
         if (!sessionData) return null;

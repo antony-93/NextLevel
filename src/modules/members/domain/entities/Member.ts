@@ -11,14 +11,4 @@ export default class Member {
         public neighborhood?: string,
         public id?: string
     ) {}
-
-    getFormatedAddress(): string {
-        const address = [
-            this.address,
-            this.neighborhood,
-            this.city
-        ];
-
-        return address.filter(Boolean).join(', ');
-    }
 }

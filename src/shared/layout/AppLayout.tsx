@@ -9,11 +9,13 @@ export default function AppLayout() {
                 <MenuSidebar />
 
                 <main className="w-full flex flex-col">
-                    <div className="flex flex-row items-center px-4 py-3 md:p-4 border-b">
+                    <div className="sticky top-0 z-10 bg-background border-b flex flex-row items-center px-4 py-3 md:p-4">
                         <SidebarTrigger iconClassName="!size-6" className="cursor-pointer p-4" />
                     </div>
 
-                    <Outlet />
+                    <div className="flex-1 w-full overflow-y-auto">
+                        <Outlet />
+                    </div>
                 </main>
             </SidebarProvider>
         </div>

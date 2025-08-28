@@ -4,8 +4,10 @@ export type TQueryParams<T> = {
     sort?: TSort<T>[];
     filters?: TFilter<T>[];
     pageSize?: number;
-    startAfterValues?: (string | number | boolean | Date | null | undefined)[]; 
+    startAfterValues?: TStartAfterValues; 
 }
+
+export type TStartAfterValues = (string | number | boolean | Date | null | undefined)[];
 
 export type TSort<T> = {
     field: keyof T & string;

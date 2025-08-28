@@ -3,12 +3,13 @@ import { Button } from "@/shared/components/ui/button"
 import { PlusIcon } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { useGroupedSessionByDate } from "../hooks/UseGroupedSession";
+import { useGroupedSessionByDate } from "../hooks/UseGroupedSessionApi";
 import GroupedSessionCard from "../components/card/GroupedSessionCard";
 import type { TSessionGroupedSession } from "../types/GroupedSessionTypes";
 import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 import { Skeleton } from "@/shared/components/skeleton";
 import { addDays } from "date-fns";
+import { NewButton } from "@/shared/components/button";
 
 export default function AgendaScreen() {
   const [currentDate, setCurrentDate] = useState(() => {
@@ -94,51 +95,49 @@ export default function AgendaScreen() {
   }, [fetchNextPage, hasNextPage]);
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-row justify-between items-center p-4 mb-2">
-        <div className="flex flex-col gap-1 flex-1">
-          <p className="text-3xl font-bold">
-            Agenda
-          </p>
+    <div className="flex flex-col h-full">
+      <div className="p-4 w-full flex flex-row justify-between items-center">
+          <div className="flex flex-col gap-1 flex-1">
+            <p className="text-3xl font-bold">
+              Agenda
+            </p>
 
-          <span className="text-muted-foreground">
-            {groupedSessions.length} aulas
-          </span>
-        </div>
+            <span className="text-muted-foreground">
+              {groupedSessions.length} aulas
+            </span>
+          </div>
 
-        <Button
-          variant="outline"
-          className="aspect-square"
-          onClick={() => navigate("/sessions/create")}
-        >
-          <PlusIcon className="opacity-60" size={16} aria-hidden="true" />
-          <span>Novo</span>
-        </Button>
+          <NewButton
+            onClick={() => navigate("/sessions/create")}
+          >
+          </NewButton>
       </div>
 
-      <AgendaCalendar
-        className="flex-1"
-        currentDate={currentDate}
-        setCurrentDate={handleSetCurrentDate}
-      >
-        {groupedSessions.map(group => (
-          <GroupedSessionCard
-            key={group.sessionDate.toISOString()}
-            group={group}
-            onClickEdit={handleEdit}
-            onClickMembers={handleMembers}
-            className="mb-2"
-          />
-        ))}
+      <div className="w-full md:p-4 flex-1">
+        <AgendaCalendar
+          className="flex-1 h-full"
+          currentDate={currentDate}
+          setCurrentDate={handleSetCurrentDate}
+        >
+          {groupedSessions.map(group => (
+            <GroupedSessionCard
+              key={group.sessionDate.toISOString()}
+              group={group}
+              onClickEdit={handleEdit}
+              onClickMembers={handleMembers}
+              className="mb-2"
+            />
+          ))}
 
-        {(isLoading || isFetchingNextPage) && Array.from({ length: pageSize }).map((_, index) => (
-          <div className="p-4 mb-2" key={index} >
-            <Skeleton className="h-50 rounded-lg" />
-          </div>
-        ))}
+          {(isLoading || isFetchingNextPage) && Array.from({ length: pageSize }).map((_, index) => (
+            <div className="p-4 mb-2" key={index} >
+              <Skeleton className="h-50 rounded-lg" />
+            </div>
+          ))}
 
-        <div ref={loaderRef} className="h-10"></div>
-      </AgendaCalendar>
+          <div ref={loaderRef} className="h-10"></div>
+        </AgendaCalendar>
+      </div>
     </div>
   )
 }

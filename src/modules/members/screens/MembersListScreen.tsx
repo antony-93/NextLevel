@@ -1,7 +1,6 @@
-import { Button } from "@/shared/components/button"
+import { NewButton } from "@/shared/components/button"
 import { Input } from "@/shared/components/input"
-import { PlusIcon } from "lucide-react"
-import { useInfiniteMembers } from "../hooks/UseMember"
+import { useInfiniteMembers } from "../hooks/UseMemberApi"
 import { useNavigate } from "react-router-dom";
 import MemberCard from "../components/card/MemberCard";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -80,14 +79,10 @@ export default function MembersListScreen() {
                     </span>
                 </div>
 
-                <Button
-                    variant="outline"
-                    className="aspect-square"
+                <NewButton
                     onClick={() => navigate("/members/create")}
                 >
-                    <PlusIcon className="opacity-60" size={16} aria-hidden="true" />
-                    <span>Novo</span>
-                </Button>
+                </NewButton>
             </div>
 
             <Input

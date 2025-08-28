@@ -61,7 +61,7 @@ export function AgendaCalendar({
 
   return (
     <div
-      className={cn("flex flex-col rounded-lg border h-full has-data-[slot=month-view]:flex-1", className)}
+      className={cn("flex flex-col md:rounded-lg md:border h-full has-data-[slot=month-view]:flex-1", className)}
       style={
         {
           "--event-height": `${EventHeight}px`,
@@ -72,7 +72,7 @@ export function AgendaCalendar({
     >
       <div
         className={cn(
-          "flex items-center justify-between p-2 sm:p-4 w-full border-b border-gray-200",
+          "flex items-center justify-between p-2 sm:p-4 w-full md:border-b md:border-t-0 border-y border-gray-200",
         )}
       >
         <Button

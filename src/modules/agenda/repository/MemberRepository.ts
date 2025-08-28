@@ -1,9 +1,9 @@
-import Repository from "@/shared/infra/Repository";
+import Repository from "@/shared/infra/repository/Repository";
 import type Member from "../domain/entities/Member";
-import FirebaseRepProvider from "@/shared/infra/providers/FirebaseRepProvider";
+import FirebaseRepository from "@/shared/infra/repository/providers/firebase/FireBaseRepository";
 
 export default class MemberRepository extends Repository<Member> {
     constructor() {
-        super(new FirebaseRepProvider<Member>('members'));
+        super(new FirebaseRepository<Member>('members', false));
     }
 }   

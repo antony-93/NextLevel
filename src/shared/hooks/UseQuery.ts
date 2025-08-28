@@ -1,7 +1,10 @@
 import { useInfiniteQuery as useInfiniteRQQuery, useQuery as useRQQuery } from "@tanstack/react-query";
 import type { IRepository } from "../interfaces/RepositoryInterface";
-import type { TQueryParams } from "../types/QueryParamsTypes";
+import type { TQueryParams, TStartAfterValues } from "../types/QueryParamsTypes";
 import type { TPaginatedResult } from "../types/PaginatedResultType";
+import { useMemo } from "react";
+import { toastError, toastSuccess, toastWarning } from "../components/Toast";
+import type { TServiceResult } from "../types/ServiceResult";
 
 type TQueryBase<T> = {
     repository: IRepository<T>
@@ -17,11 +20,17 @@ export function useQuery<T>(config: TQueryBase<T>) {
             config.queryParams?.sort,
             config.queryParams?.pageSize
         ],
-        queryFn: () => {
-            const result = config.repository.get(config.queryParams || {});
+        queryFn: async () => {
+            const result = await config.repository.list(config.queryParams || {});
 
-            return result;
-        }
+            if (!result.success) {
+                if (result.error) toastError("Erro", result.error.message);
+                throw result.error;
+            }
+
+            return result.data!;
+        },
+        retry: false
     })
 
     return query;
@@ -40,10 +49,17 @@ export function useQueryInfinite<T>(config: TQueryBase<T>) {
                 pageSize: config.queryParams?.pageSize,
                 filters: config.queryParams?.filters,
                 sort: config.queryParams?.sort,
-                startAfterValues: pageParam as (string | number | boolean | Date | null | undefined)[] | undefined
+                startAfterValues: pageParam as TStartAfterValues | undefined
             };
 
-            return config.repository.get(queryParams);
+            const result = await config.repository.list(queryParams);
+
+            if (!result.success) {
+                if (result.error) toastError("Erro", result.error.message);
+                throw result.error;
+            }
+
+            return result.data!;
         },
         getNextPageParam: (lastPage) => {
             if (!lastPage.hasMore) {
@@ -55,23 +71,19 @@ export function useQueryInfinite<T>(config: TQueryBase<T>) {
         initialPageParam: undefined,
         staleTime: Infinity,
         gcTime: Infinity,
+        retry: false
     });
 
-    return infiniteQuery;
-}
+    const data = useMemo(() => {
+        if (!infiniteQuery.data || !('pages' in infiniteQuery.data)) return [];
+        
+        return infiniteQuery.data.pages.flatMap(page => page.data || []);
+    }, [infiniteQuery.data]);
 
-export function useQueryCount<T>(config: TQueryBase<T>) {
-    const query = useRQQuery({
-        queryKey: [
-            config.queryKey, 
-            'count',
-            config.queryParams?.filters,
-            config.queryParams?.sort
-        ],
-        queryFn: () => config.repository.getCount(config.queryParams || {})
-    });
-
-    return query;
+    return {
+        ...infiniteQuery,
+        data
+    };
 }
 
 type TQueryById<T> = TQueryBase<T> & {
@@ -81,6 +93,39 @@ type TQueryById<T> = TQueryBase<T> & {
 export function useQueryById<T>(config: TQueryById<T>) {
     return useRQQuery({
         queryKey: [config.queryKey, config.id],
-        queryFn: () => config.repository.getById(config.id)
+        queryFn: async () => {
+            const result = await config.repository.findById(config.id);
+
+            if (!result.success) {
+                if (result.error) toastError("Erro", result.error.message);
+                throw result.error;
+            }
+
+            return result.data;
+        },
+        retry: false
     });
+}
+
+export function useQueryCount<T>(config: TQueryBase<T>) {
+    const query = useRQQuery({
+        queryKey: [
+            config.queryKey, 
+            'count',
+            config.queryParams?.filters
+        ],
+        queryFn: async () => {
+            const result = await config.repository.countRecords(config.queryParams || {});
+
+            if (!result.success) {
+                if (result.error) toastError("Erro", result.error.message);
+                throw result.error;
+            }
+
+            return result.data;
+        },
+        retry: false
+    });
+
+    return query;
 }
