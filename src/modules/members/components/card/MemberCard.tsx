@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/shared/components/card";
-import { Button, IconButton } from "@/shared/components/button";
+import { IconButton } from "@/shared/components/button";
 import { Badge } from "@/shared/components/badge";
 import { Calendar, CreditCard, Edit, MapPin } from "lucide-react";
 import type Member from "../../domain/entities/Member";

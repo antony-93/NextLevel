@@ -5,7 +5,6 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/shared/utils/utils";
-import { EnumStatusSession } from "../../domain/enums/EnumStatusSession";
 import Session from "../../domain/entities/Session";
 import SessionCombobox from "../combobox/SessionCombobox";
 import { EnumSessionType } from "../../domain/enums/EnumSessionType";

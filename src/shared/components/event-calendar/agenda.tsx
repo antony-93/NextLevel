@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import { RiCalendarCheckLine } from "@remixicon/react"
 import {
   addDays,
