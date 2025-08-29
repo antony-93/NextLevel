@@ -1,69 +1,91 @@
-# React + TypeScript + Vite
+# 📅 Sistema de Agendamento  
+  
+Objetivo: Criar um sistema de agendamento de aulas para uma rede de academias, com foco em **performance**, **escalabilidade**, principalmente em dispositivos móveis (85% dos acessos).  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-4-yellow?logo=vite)
+![Firebase](https://img.shields.io/badge/Firebase-orange?logo=firebase)
+![React Query](https://img.shields.io/badge/React_Query-critical?logo=react-query)
+![Lighthouse](https://img.shields.io/badge/Lighthouse-Performance-brightgreen?logo=lighthouse)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Tecnologias utilizadas  
 
-## Expanding the ESLint configuration
+- **React + Vite** → base do projeto
+- **Origin UI** → biblioteca de componentes pronta, boa para **aumentar a velocidade de desenvolvimento do projeto** e **performance**
+- **React Query** → Gerenciamento de dados, com **cache inteligente** para consultas rápidas
+- **Firebase (Firestore)** → banco de dados NoSQL em tempo real, projetado para lidar com **alto volume de acessos simultâneos** e garantir **baixa latência** nas operações  
+- **Zod + React Hook Form** → validação segura e reativa nos formulários  
+- **Lighthouse** → utilizado após o build da aplicação para medir **performance, acessibilidade e melhores práticas**  
+- **PWA (Progressive Web App)** → configuração feita para que o sistema possa ser instalado em dispositivos móveis/desktop
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 🏗️ Arquitetura & Escalabilidade  
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+O projeto foi estruturado em **módulos independentes**, favorecendo **organização, reuso e desacoplamento**.  
+Cada módulo (ex: `alunos`, `aulas`) importa apenas recursos de **shared**, evitando dependências cruzadas e facilitando manutenção e evolução do código.  
+
+
+```plaintext
+my-app/
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+├── src/
+│   ├── modules/
+│   │   ├── members/
+│   │   │   ├── repository/
+│   │   │   ├── routes/
+│   │   │   └── contexts/
+│   │   └── sessions/
+│   │       ├── screens/
+│   │       ├── components/
+│   │       └── etc...
+│   ├── routes/
+│   │   └── Router.tsx | Aponta arquivos de rotas de outros módulos
+│   │
+│   ├── shared/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── infra/
+│   │   └── etc...
+├── package.json
+└── tsconfig.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## ⚙️ Regras de Negócio (implementadas no front)  
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- ✅ Aula não pode ultrapassar capacidade máxima de participantes  
+- ✅ Aula finalizada não recebe novos participantes  
+- ✅ Agendamento pós-início só é permitido se a aula estiver configurada para isso  
+
+Essas regras foram aplicadas **tanto nos formularios quanto nas mutações utilzando validators**, garantindo feedback rápido (via **toasts**) e bloqueando ações inválidas.  
+
+---
+
+## 🎯 Foco no desafio  
+
+- **Mobile First** → como 85% dos acessos seriam em dispositivos móveis, o design e a experiência foram priorizados para telas pequenas desde o início  
+- **Validação segura** → formulários com Zod + RHF  
+- **Performance** → React Query com cache + renderização otimizada via Origin UI  
+- **Escalabilidade** → módulos independentes + Firebase, que suporta **alto volume de acessos simultâneos**  
+- **Medição de performance real** → aplicação analisada com **Lighthouse após o build**, garantindo métricas sólidas de performance, acessibilidade e SEO  
+- **Experiência fluida** → carregamento progressivo, feedback visual, telas responsivas  
+
+
+## 📦 Como rodar o projeto  
+
+```bash
+# Clonar o repositório
+git clone https://github.com/SEU-USUARIO/desafio-agendamento.git
+
+# Instalar dependências
+npm install
+
+# Rodar a aplicação
+npm run dev
