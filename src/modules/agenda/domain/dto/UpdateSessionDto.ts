@@ -1,7 +1,7 @@
 import type { EnumSessionType } from "../enums/EnumSessionType";
 import type { EnumStatusSession } from "../enums/EnumStatusSession";
 
-export type TSaveSessionDto = {
+export type TUpdateSessionDto = {
     description: string;
     sessionType: EnumSessionType;
     status: EnumStatusSession;

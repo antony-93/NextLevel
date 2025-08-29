@@ -11,11 +11,13 @@ type MembersComboboxProps = Omit<
     React.ComponentProps<typeof Select>,
     "onSearch" | "isLoadingList" | "isLoadingNextPage"
 > & {
+    value?: string;
     onChange: (member: Member) => void;
     className?: string;
 };
 
 export default function MembersCombobox({
+    value,
     onChange,
     className,
     ...props
@@ -74,15 +76,15 @@ export default function MembersCombobox({
         ]);
     });
 
-    const handleSelect = (value: string) => {
-        const selectedMember = members.find(member => member.id === value);
-
+    const handleSelect = (selectedValue: string) => {
+        const selectedMember = members.find(member => member.id === selectedValue);
         if (selectedMember) onChange(selectedMember);
     }
 
     return (
         <Select
             {...props}
+            value={value || ""}
             className={cn("mb-4", className)}
             searchPlaceholder="Pesquisar membros"
             onValueChange={handleSelect}

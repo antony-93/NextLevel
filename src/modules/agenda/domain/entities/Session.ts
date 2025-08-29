@@ -1,6 +1,5 @@
 import type { EnumSessionType } from "../enums/EnumSessionType";
 import { EnumStatusSession } from "../enums/EnumStatusSession";
-import type { SessionMember } from "./SessionMember";
 
 export default class Session {
     constructor(
@@ -11,7 +10,7 @@ export default class Session {
         public sessionHour: string,
         public maxParticipants: number,
         public allowJoinAfterStart: boolean,
+        public quantSessionMembers: number,
         public id?: string,
-        public sessionMembers: SessionMember[] = []
     ) { }
 }

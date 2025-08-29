@@ -9,11 +9,9 @@ const _repository = new MemberRepository();
 export function useInfiniteMembers(params?: TQueryParams<Member>) {
     const {
         filters,
-        setFilters,
         sort,
-        setSort,
         pageSize,
-        setPageSize,
+        ...restQueryParams
     } = useQueryParams<Member>(params, {
         sort: [{
             field: 'name',
@@ -23,12 +21,7 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
 
     const {
         data,
-        fetchNextPage,
-        hasNextPage,
-        isLoading,
-        isError,
-        error,
-        isFetchingNextPage
+        ...restQuery
     } = useQueryInfinite({
         repository: _repository,
         queryKey: 'members',
@@ -41,17 +34,10 @@ export function useInfiniteMembers(params?: TQueryParams<Member>) {
 
     return {
         members: data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
+        ...restQuery,
         filters,
-        setFilters,
-        setSort,
         sort,
         pageSize,
-        setPageSize,
-        isLoading,
-        isError,
-        error
+        ...restQueryParams
     };
 }

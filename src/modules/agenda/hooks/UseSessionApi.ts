@@ -5,34 +5,25 @@ import Session from "../domain/entities/Session";
 import { useQueryParams } from "@/shared/hooks/UseQueryParams";
 import useActionMutation from "@/shared/hooks/UseActionMutation";
 import { EnumStatusSession } from "../domain/enums/EnumStatusSession";
-import type { TInsertMemberSessionDto } from "../domain/dto/InsertMemberSessionDto";
-import SessionMember from "../domain/entities/SessionMember";
-import InsertMemberIntoSessionValidator from "../domain/validators/InsertMemberIntoSessionValidator";
-import { BusinessError } from "@/shared/utils/errors/Error";
-import type { TSaveSessionDto } from "../domain/dto/SaveSessionDto";
+import type { TCreateSessionDto } from "../domain/dto/CreateSessionDto";
+import type { TUpdateSessionDto } from "../domain/dto/UpdateSessionDto";
+import type { TUpdateSessionMembersCountDto } from "../domain/dto/UpdateSessionMembersCountDto";
 
 const _repository = new SessionRepository();
 
 export function useInfiniteSessionsQuery(params?: TQueryParams<Session>) {
     const {
         filters,
-        setFilters,
         sort,
-        setSort,
         pageSize,
-        setPageSize,
+        ...restQueryParams
     } = useQueryParams<Session>(params);
 
     const {
         data,
-        fetchNextPage,
-        hasNextPage,
-        isLoading,
-        isError,
-        error,
-        isFetchingNextPage
+        ...restQuery
     } = useQueryInfinite({
-        repository: new SessionRepository(),
+        repository: _repository,
         queryKey: 'sessions',
         queryParams: {
             filters,
@@ -43,27 +34,18 @@ export function useInfiniteSessionsQuery(params?: TQueryParams<Session>) {
 
     return {
         sessions: data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
         filters,
-        setFilters,
-        setSort,
         sort,
         pageSize,
-        setPageSize,
-        isLoading,
-        isError,
-        error
+        ...restQueryParams,
+        ...restQuery
     };
 }
 
-export function useSessionQuery(id: string) {
+export function useSessionQueryId(id: string) {
     const {
         data: session,
-        isLoading,
-        isError,
-        error
+        ...rest
     } = useQueryById({
         repository: new SessionRepository(),
         queryKey: 'sessions',
@@ -72,9 +54,7 @@ export function useSessionQuery(id: string) {
 
     return {
         session,
-        isLoading,
-        isError,
-        error
+        ...rest
     };
 }
 
@@ -82,8 +62,8 @@ export function useCreateSession() {
     const {
         mutateAsync: createSession,
         isPending: isCreatingSession
-    } = useActionMutation<Session, TSaveSessionDto>({
-        mutationFn: async (dto: TSaveSessionDto) => {
+    } = useActionMutation<Session, TCreateSessionDto>({
+        mutationFn: async (dto: TCreateSessionDto) => {
             const session = new Session(
                 dto.description,
                 EnumStatusSession.PENDING,
@@ -92,6 +72,7 @@ export function useCreateSession() {
                 dto.sessionHour,
                 dto.maxParticipants,
                 dto.allowJoinAfterStart,
+                dto.quantSessionMembers
             );
 
             return await _repository.create(session);
@@ -110,8 +91,8 @@ export function useUpdateSession(id: string) {
     const {
         mutateAsync: updateSession,
         isPending: isUpdatingSession
-    } = useActionMutation<Partial<Session>, TSaveSessionDto>({
-        mutationFn: async (dto: TSaveSessionDto) => {
+    } = useActionMutation<Partial<Session>, TUpdateSessionDto>({
+        mutationFn: async (dto: TUpdateSessionDto) => {
             const session: Partial<Session> = {
                 description: dto.description,
                 sessionType: dto.sessionType,
@@ -142,7 +123,8 @@ export function useCompleteSession(id: string) {
             return await _repository.completeSession(id);
         },
         successMessage: 'Sessão finalizada com sucesso!',
-        queryKey: 'sessions'
+        queryKey: 'sessions',
+        refetch: false
     })
 
     return {
@@ -151,59 +133,21 @@ export function useCompleteSession(id: string) {
     }
 }
 
-
-export function useInsertMemberSession(session: Session) {
+export function useUpdateSessionMembersQuantity(id: string) {
     const {
-        mutateAsync: insertMemberSession,
-        isPending: isInsertingMemberSession
-    } = useActionMutation<Partial<Session>, TInsertMemberSessionDto>({
-        mutationFn: async (dto: TInsertMemberSessionDto) => {
-            const result = InsertMemberIntoSessionValidator.validate(session);
-
-            debugger;
-
-            if (!result.success) {
-                throw new BusinessError("Atenção", result.message!);
-            }
-
-
-            const sessionResult = await _repository.updateMembers(session.id!, [
-                ...session.sessionMembers,
-                {
-                    memberId: dto.memberId,
-                    sessionId: session.id!,
-                    name: dto.name
-                }
-            ]);
-
-            return sessionResult;
+        mutateAsync: updateSessionMembersQuantity,
+        isPending: isUpdatingSessionMembersQuantity
+    } = useActionMutation<Partial<Session>, TUpdateSessionMembersCountDto>({
+        mutationFn: async (dto: TUpdateSessionMembersCountDto) => {
+            return await _repository.updateSessionMembersCount(id, dto.sessionMembersQuant);
         },
-        successMessage: 'Adicionado aluno com sucesso!',
-        queryKey: 'sessions'
+        successMessage: 'Quantidade de membros da sessão atualizada com sucesso!',
+        queryKey: 'sessions',
+        refetch: false
     })
 
     return {
-        insertMemberSession,
-        isInsertingMemberSession
-    }
-}
-
-export function useDeleteSessionMember(session: Session) {
-    const {
-        mutateAsync: deleteSessionMember,
-        isPending: isDeletingSessionMember
-    } = useActionMutation<Partial<Session>, string>({
-        mutationFn: async (id: string) => {
-            const sessionMembers = session.sessionMembers.filter(member => member.id !== id);
-
-            return await _repository.updateMembers(session.id!, sessionMembers);
-        },
-        successMessage: 'Removido aluno com sucesso!',
-        queryKey: 'sessions'
-    })
-
-    return {
-        deleteSessionMember,
-        isDeletingSessionMember
+        updateSessionMembersQuantity,
+        isUpdatingSessionMembersQuantity
     }
 }

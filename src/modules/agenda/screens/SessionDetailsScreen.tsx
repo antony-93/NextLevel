@@ -2,12 +2,12 @@ import { Tabs, TabsContent, TabsList, TabTrigger } from "@/shared/components/tab
 import { Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import TabDataSession from "./tabs/TabDataSession";
-import TabParticipants from "./tabs/TabParticipants";
-import { SessionContextProvider } from "../context/UseEditSessionContext";
-import { useSessionQuery } from "../hooks/UseSessionApi";
-import Session from "../domain/entities/Session";
-import { useMemo } from "react";
+import TabParticipants from "./tabs/sessionmembers/TabSessionMembers";
+import { SessionContextProvider, useSessionContext } from "../context/UseEditSessionContext";
+import { useSessionQueryId } from "../hooks/UseSessionApi";
 import { IconCloseButton } from "@/shared/components/button";
+import type Session from "../domain/entities/Session";
+import { useEffect } from "react";
 
 export default function SessionDetailsScreen() {
     const navigate = useNavigate();
@@ -41,8 +41,8 @@ function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
     const {
         session,
         isLoading
-    } = useSessionQuery(id);
-    
+    } = useSessionQueryId(id);
+
     if (isLoading) {
         return (
             <Loader2 />
@@ -56,21 +56,37 @@ function SessionDetailsLoader({ id }: SessionDetailsLoaderProps) {
     }
 
     return (
+        <SessionContextProvider session={session}>
+            <SessionContent session={session} />
+        </SessionContextProvider>
+    )
+}
+
+type SessionContentProps = {
+    session: Session;
+}
+
+function SessionContent({ session }: SessionContentProps) {
+    const { setSession } = useSessionContext();
+
+    useEffect(() => {
+        if (session) setSession(session);
+    }, [session]);
+
+    return (
         <Tabs className="flex-1 flex-col" defaultValue="tab-1">
             <TabsList>
                 <TabTrigger label="Dados da aula" value="tab-1" />
                 <TabTrigger label="Participantes" value="tab-2" />
             </TabsList>
 
-            <SessionContextProvider session={session}>
-                <TabsContent className="flex-1 flex-col flex" value="tab-1">
-                    <TabDataSession className="flex-1" />
-                </TabsContent>
+            <TabsContent className="flex-1 flex-col flex" value="tab-1">
+                <TabDataSession className="flex-1" />
+            </TabsContent>
 
-                <TabsContent value="tab-2">
-                    <TabParticipants />
-                </TabsContent>
-            </SessionContextProvider>
+            <TabsContent value="tab-2">
+                <TabParticipants />
+            </TabsContent>
         </Tabs>
     )
 }

@@ -3,7 +3,6 @@ import MemberForm from "../components/form/MemberForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { FormContainer } from "@/shared/components/Container";
 import { useCreateMember } from "../hooks/UseMemberApi";
-import { useCallback } from "react";
 import type { TMemberFormData } from "../types/MemberFormDataTypes";
 
 
@@ -15,10 +14,10 @@ export default function MemberCreateScreen() {
 
     const navigate = useNavigate();
 
-    const onSubmit = useCallback(async (member: TMemberFormData) => {
+    const onSubmit = async (member: TMemberFormData) => {
         await createMember(member);
         navigate("/members/list");
-    }, [createMember, navigate]);
+    };
 
     return (
         <FormContainer>

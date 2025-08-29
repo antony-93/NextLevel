@@ -11,7 +11,9 @@ type TabDataSessionProps = {
 }
 
 export default function TabDataSession({ className }: TabDataSessionProps) {
-    const { session } = useSessionContext();
+    const { 
+        session 
+    } = useSessionContext();
 
     const {
         completeSession,

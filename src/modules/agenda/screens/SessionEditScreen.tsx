@@ -1,12 +1,12 @@
 
 import { useNavigate, useParams } from "react-router-dom";
-import { useSessionQuery, useUpdateSession } from "../hooks/UseSessionApi";
+import { useSessionQueryId, useUpdateSession } from "../hooks/UseSessionApi";
 import SessionForm from "../components/form/SessionForm";
 import { IconCloseButton } from "@/shared/components/button";
 import { useCallback } from "react";
 import { FormContainer } from "@/shared/components/Container";  
 import type { TSessionFormData } from "../types/SessionFormDataTypes";
-import type { TSaveSessionDto } from "../domain/dto/SaveSessionDto";
+import type { TUpdateSessionDto } from "../domain/dto/UpdateSessionDto";
 
 export default function SessionEditScreen() {
     const navigate = useNavigate();
@@ -23,10 +23,10 @@ export default function SessionEditScreen() {
     const {
         session,
         isLoading
-    } = useSessionQuery(id!);
+    } = useSessionQueryId(id!);
 
     const onSubmit = useCallback(async (sessionData: TSessionFormData) => {
-        const dto: TSaveSessionDto = {
+        const dto: TUpdateSessionDto = {
             description: sessionData.description,
             sessionType: sessionData.sessionType,
             status: session!.status,

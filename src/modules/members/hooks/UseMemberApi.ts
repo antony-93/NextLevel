@@ -80,7 +80,7 @@ export function useMember(id: string) {
 
 export function useCreateMember() {
     const {
-        mutate: createMember,
+        mutateAsync: createMember,
         isPending: isCreatingMember
     } = useActionMutation<Member, TSaveMemberDto>({
         mutationFn: async (dto: TSaveMemberDto) => {

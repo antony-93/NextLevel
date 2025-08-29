@@ -100,7 +100,7 @@ export default function MembersListScreen() {
                     />
                 ))}
 
-                {isLoading || isFetchingNextPage && <MembersListLoader pageSize={pageSize} />}
+                {(isLoading || isFetchingNextPage )&& <MembersListLoader pageSize={pageSize} />}
             </div>
 
             <div ref={loaderRef} className="h-10"></div>

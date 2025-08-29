@@ -1,6 +1,8 @@
-export type SessionMember = {
-    memberId: string;
-    sessionId: string;
-    name: string;
-    id?: string;
+export default class SessionMember {
+    constructor(
+        public memberId: string,
+        public sessionId: string,
+        public name: string,
+        public id?: string
+    ) {}
 }

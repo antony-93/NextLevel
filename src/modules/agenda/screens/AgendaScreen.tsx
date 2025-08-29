@@ -7,7 +7,6 @@ import { EnumFilterOperator } from "@/shared/enums/EnumFilterOperator";
 import { Skeleton } from "@/shared/components/skeleton";
 import { addDays } from "date-fns";
 import { NewButton } from "@/shared/components/button";
-import type Session from "../domain/entities/Session";
 
 export default function AgendaScreen() {
   const [currentDate, setCurrentDate] = useState(() => {
@@ -41,13 +40,6 @@ export default function AgendaScreen() {
     ]
   });
 
-  const handleEdit = useCallback((session: Session) => {
-    navigate(`/sessions/edit/${session.id}`);
-  }, [navigate]);
-
-  const handleMembers = useCallback((session: Session) => {
-    navigate(`/sessions/details/${session.id}`);
-  }, [navigate]);
 
   const handleSetCurrentDate = useCallback((date: Date) => {
     const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
@@ -56,8 +48,6 @@ export default function AgendaScreen() {
 
     const formatedFilters = filters.filter(filter => filter.field !== 'sessionDate'),
       finalDate = addDays(normalizedDate, AgendaDaysToShow);
-
-    console.log(normalizedDate, finalDate);
 
     setFilters([{
       field: 'sessionDate',
@@ -121,8 +111,8 @@ export default function AgendaScreen() {
             <GroupedSessionCard
               key={group.sessionDate.toISOString()}
               group={group}
-              onClickEdit={handleEdit}
-              onClickMembers={handleMembers}
+              onClickEdit={session => navigate(`/sessions/edit/${session.id}`)}
+              onClickMembers={session => navigate(`/sessions/details/${session.id}`)}
               className="mb-2"
             />
           ))}

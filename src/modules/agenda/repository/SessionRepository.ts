@@ -3,7 +3,6 @@ import Repository from "@/shared/infra/repository/Repository";
 import type Session from "../domain/entities/Session";
 import { ErrorFactory } from "@/shared/utils/errors/ErrorFactory";
 import { EnumStatusSession } from "../domain/enums/EnumStatusSession";
-import type SessionMember from "../domain/entities/SessionMember";
 
 export default class SessionRepository extends Repository<Session> {
     constructor() {
@@ -20,10 +19,10 @@ export default class SessionRepository extends Repository<Session> {
         }
     }
 
-    async updateMembers(id: string, members: SessionMember[]): Promise<Partial<Session>> {
+    async updateSessionMembersCount(id: string, sessionMembersQuant: number): Promise<Partial<Session>> {
         try {
             return await this.update(id, {
-                sessionMembers: members
+                quantSessionMembers: sessionMembersQuant
             });
         } catch (error) {
             throw ErrorFactory.create(error);

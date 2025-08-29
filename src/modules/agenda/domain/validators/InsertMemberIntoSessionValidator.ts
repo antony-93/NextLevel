@@ -12,7 +12,7 @@ export default class InsertMemberIntoSessionValidator {
             }
         }
 
-        if (session.sessionMembers.length || 0 >= session.maxParticipants) {
+        if (session.quantSessionMembers >= session.maxParticipants) {
             return {
                 success: false,
                 message: 'Máximo de participantes atingido'

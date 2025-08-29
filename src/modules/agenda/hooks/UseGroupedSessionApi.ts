@@ -7,14 +7,7 @@ import type Session from "../domain/entities/Session";
 export function useGroupedSessionByDate(queryParams: TQueryParams<Session>) {
     const { 
         sessions, 
-        filters,
-        setFilters,
-        isLoading, 
-        isError,
-        isFetchingNextPage,
-        fetchNextPage,
-        hasNextPage,
-        pageSize
+        ...restQueryParams
     } = useInfiniteSessionsQuery(queryParams);
 
     const groupedSessions = useMemo<TGroupedSession[]>(() => {
@@ -46,13 +39,6 @@ export function useGroupedSessionByDate(queryParams: TQueryParams<Session>) {
 
     return {
         groupedSessions,
-        isFetchingNextPage,
-        isLoading,
-        isError,
-        filters,
-        setFilters,
-        fetchNextPage,
-        hasNextPage,
-        pageSize
+        ...restQueryParams
     };
 }

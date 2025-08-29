@@ -4,8 +4,8 @@ import { IconCloseButton } from "@/shared/components/button";
 import { FormContainer } from "@/shared/components/Container";
 import { useCreateSession } from "../hooks/UseSessionApi";
 import type { TSessionFormData } from "../types/SessionFormDataTypes";
-import type { TSaveSessionDto } from "../domain/dto/SaveSessionDto";
 import { EnumStatusSession } from "../domain/enums/EnumStatusSession";
+import type { TCreateSessionDto } from "../domain/dto/CreateSessionDto";
 
 export default function SessionCreateScreen() {
     const {
@@ -16,14 +16,15 @@ export default function SessionCreateScreen() {
     const navigate = useNavigate();
 
     const onSubmit = async (session: TSessionFormData) => {
-        const dto: TSaveSessionDto = {
+        const dto: TCreateSessionDto = {
             description: session.description,
             sessionType: session.sessionType,
             status: EnumStatusSession.PENDING,
             sessionDate: session.sessionDate,
             sessionHour: session.sessionHour,
             maxParticipants: session.maxParticipants,
-            allowJoinAfterStart: session.allowJoinAfterStart
+            allowJoinAfterStart: session.allowJoinAfterStart,
+            quantSessionMembers: 0
         };
 
         const createResult = await createSession(dto);
