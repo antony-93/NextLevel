@@ -82,7 +82,7 @@ Essas regras foram aplicadas **tanto nos formularios quanto nas mutações utilz
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/SEU-USUARIO/desafio-agendamento.git
+git clone https://github.com/antony-93/NextLevel.git
 
 # Instalar dependências
 npm install
